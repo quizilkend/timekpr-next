@@ -1,0 +1,672 @@
+timekpr-next (0.5.8-1ubuntu1~ppa1) unstable; urgency=medium
+
+  * added translations for Russian, Dutch, Portugese languages
+  * improved sound notificatons:
+      added support for espeak-ng
+      system "bell" notifications are no longer relient on freedesktop sound files
+  * packaging warning fixes (#2089143)
+  * enable standard window close button (workaround for #2091011)
+  * fixes for .rpm packaging from Alexey (#2091080)
+  * improve pidfile handling (#2097253)
+  * added an option to kill sessions instead of terminate
+      at least Kubuntu 24.04 will not terminate sessions with TerminateSession, it works fine with KillSession + SIGTERM
+  * implement a workaround for weird CMOS date reset bug which results time being reported 55 years in the future
+      which results in a lot of free time for the subordinate (this is exceptionally rare condition)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sat, 10 May 2025 17:29:42 +0300
+
+timekpr-next (0.5.7-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * improve username and user shell filter (fixes #2061003)
+      usernames which do not conform to standard username patterns are filtered out
+      users with no login shell are filtered out
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 30 May 2024 21:09:45 +0300
+
+timekpr-next (0.5.6-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * remove UUID upper boundary check (fixes #2046222)
+      any user whose ID is greater than UUID_MIN is considered controllable by timekpr
+      this helps with systemd-homed, remote LDAP logins etc, where UID is arbitrary high
+  * fix a long standding bug when weekly limits are reset together with monthly limits
+      this occurs only when new month starts in the middle of the week
+  * improve session time accounting for display / reporting purposes
+    actually account and display all active and sleep time in case user is logged in for more than 2 days or even more than a week
+  * color "apply" buttons and tab pages in red
+      to warn users that there are pending changes to apply
+  * added keyboard navigation focus order to list type of elements (where there are ediable columns)
+      swapped day limit and enabled columns due to weird GTK behaviour when toggle can not be activated using keyboard as first editable item in list
+  * disable search boxes on list elements as they pop up using keyboard navigation
+      they are not needed and just confuse users
+  * fix "verify" button enablement
+      it was enabled even when user clicks in and out of "from" field and it contained 0 hour
+  * made lists a little wider for adwaita theme not to show horizontal scrollbar
+  * fix row positioning "Gtk-CRITICAL" when there is no rows in the list
+  * minor dbus performance measurement optimization
+  * prevent saving / processing of duplicate timekpr configuration which can happen very rarely
+  * when user sets / saves configuration or timekpr loads it from file, log it to the log file
+      this way the log file will contain configuration too and that will be enough to ask for debugging if smth goes south
+  * added new "realtime" information get method to CLI + translations
+  * trying to cover as much DE as we can for idle time accounting (still have to be compatible with freedesktop / gnome standard)
+      add more delay to connect to screensaver (hopefully that helps computers with slower DE start)
+      rewrote screensaver dbus name detection based on DE name - this should help with some DEs which are
+        less known but still have a compatible screensaver interface
+      fall back to gnome and then to freedesktop interfaces (gnome is more popular, freedesktop - very few actually implement it)
+        if nothing else is detected and works
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 17 Mar 2024 18:02:25 +0200
+
+timekpr-next (0.5.5-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * add initial support for systemd-homed users and systemd-homed dynamic users
+  * Spanish translations, thanks to Ivan L.
+  * add couple of Debian specific packaging fixes
+  * check for login.defs in multiple possible directories (for example, openSUSE moved the file to /usr)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 1 Sep 2023 13:22:13 +0300
+
+timekpr-next (0.5.4-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * translations
+      Belorussian translations, thanks to Aliaxandr
+      enabled German translations
+  * misc
+      logging changes (more refined and enough verbose)
+      regular and PT notifications now are separate and follow the same logic (+logging)
+      added logging callback to know when the notification is closed
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 7 Oct 2022 07:39:11 +0300
+
+timekpr-next (0.5.3-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * bug fixes
+      fix DBUS time notification signal and intermittent user session restriction enforcement issues due to this error:
+        "TypeError: 'float' object cannot be interpreted as an integer"
+      this seems to happen on very recent python versions
+  * translations
+      German translations, thanks to Robert E.
+  * misc
+      add logging for linux distribution identification and core components (python version, dbus-python version)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 21 Feb 2022 22:50:53 +0200
+
+timekpr-next (0.5.2-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * features
+    PlayTime left is now shown besides the icon / on label
+  * bug fixes
+      fix #1927771 (the issue was improper configuration when limit count was less then allowed day count)
+      additionally allow setting empty day / limit lists for regular time and PlayTime
+      fix error handling with empty lists
+      properly check allowed day numbers according to allowed values (1-7)
+      a small fix for time leak (couple of seconds) on day change
+  * technical improvements
+      address the situation when session type can change during the session in logind (https://github.com/systemd/systemd/pull/14925)
+      improved session accounting for situations when session type is in tracked list at the same time as in excluded, exclusion takes precedence
+      improved session logging to determine why the time for session is or is not accounted
+      improved session remaining process killer to include processes that use pseudo-terminals as well as recording a summary of killing results
+      prevent an installation error when blindly recreating GTK icon cache even if it is not present, in these cases just create it
+      properly check whether an instance of timekpr applications is actually running
+      on day change, reset not only this day spent and sleep times, but for next day too
+      tiny improvement on sleep time precision
+      make admin application to exit gracefully when it was opened from terminal and ctrl+c was pressed (SIGINT)
+      less logging in standard debug mode / remove duplicate logging for PT
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Wed, 23 Jun 2021 12:34:38 +0300
+
+timekpr-next (0.5.1-2ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * quick fix for PlayTime notifications
+    revert the cap in daemon for sending PlayTime left to clients
+    admin app will always show actual PlayTime left
+    client app will receive actual PlayTime left, but it will show
+      minimum of PlayTime or standard time left for that particular day to user (child, subordinate)
+  * possibly fix a bug #1917916 when process changed the owner from regular user to system user but was still left in user process list
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 5 Mar 2021 11:48:25 +0200
+
+timekpr-next (0.5.1-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * adjust README to fix MD parsing nuances on gitlab
+  * add gnome-shell-extension-appindicator to suggestions list
+  * fix project description to match the README
+  * technical improvements
+    added ":" as allowed separator for minute intervals (undocumented feature)
+    improve a workaround in config loader routines for cases when user makes a mistake while manually editing the config files
+    added explanatory comment for values in control files
+    print out uname when timekpr starts to better understand the environment the timekpr is running in
+    log more information about timekpr performance and computer load average
+    log information about day / week / month change
+    added elapsed time information output on lowest log level
+    rewritten logging routines and implemented buffered log save
+    time spent is accounted and saved even when file has been modified externally (this should help with proper time accounting
+      (2x+) if user is logged in from multiple machines when commonly shared directory is used)
+  * registered bug fixes
+    adjust Debian installation suggestions in README (fixes #1910457)
+    start using ayatana appindicators because regular ones seem to be deprecated (fixes #1910461)
+      adjust for openSUSE too (Fedora does not seem to be using ayatana appindicators yet)
+  * unregistered bug fixes
+    fixes to client application when <Escape> is pressed instead of close window which leads to empty timekpr windows
+    fixes to PlayTime daily limit reset when the day has changed
+    fix for PlayTime disabled -> enabled did not work right away when user is already logged in
+    fix for user time accounting which added couple of seconds to time spent when using unaccountable intervals
+    fix time accounting for PlayTime in override mode and unaccounted time intervals
+    fix process handling when process does not have a normal user id that process monitor is interested in and it changed executable
+      or process changed user id from one we were interested in to one we are not
+    fix timekpr behaviour when user was able to use computer prior the starting minutes of unaccounted hour interval
+      now user will be dealt according to defined rules instead of using the computer when he is not allowed to
+    lift the terminate / shutdown restriction when termination sequence has been initialized, but admin gives more time prior to
+      terminate or shutdown
+  * new features
+    introduce an option to prevent PlayTime activities to be started during unaccountable ("∞") intervals
+    introduce an option to monitor PlayTime activities (processes) using first 512 characters of command line
+      by default only process name is used for activity detection
+    logging level changes are applied immediately
+    gray icon for unaccounted hours, which help to distinguish the interval, especially when there is no time left (was: red icon)
+    add possibility to edit single daily, daily PlayTime and weekly/monthly limits by editing value directly
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 1 Mar 2021 21:49:33 +0200
+
+timekpr-next (0.5.0-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * fix a bug when administration application tries to get user information
+    from server even when no user has been selected
+  * added clarifications to the template on some keywords not to be translated
+    fixed LV and IT translations with keywords
+  * enable Italian translations
+  * added Italian translations
+  * added clarifications on some keywords not to be translated
+  * translation template update, spelling fixes and Latvian translations
+  * replaced re.escape with simple replace due to it's different behavior in different versions
+    this fixes user list retrieval in Ubuntu 18.04 (python 3.6.9)
+  * fixed a bug when user names will not show up in administration application if username contains a . (dot)
+  * introduced PlayTime and PlayTime override modes
+    this basically allows a supervisor to account and control specific processes in the system for their subordinates
+    supervisor has to configure which processes are accounted by entering a process executable names / masks
+  * introducing "freeride" time periods
+  * some GUI improvements in client app
+  * total rewrite of administration app to improve usability
+  * introducing user configurable notifications
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Tue, 29 Dec 2020 17:51:19 +0200
+
+timekpr-next (0.4.4-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * adjust previously built workaround for switching to login manager screen
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 25 Oct 2020 19:25:59 +0300
+
+timekpr-next (0.4.3-2ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * added lock, suspend and shutdown options as a restriction / lockout types
+  * added option for computer to be woken up automatically if it was put to sleep by timekpr
+    additionally it's possible to specify hour interval when it is allowed to be woken up
+  * changed termination sequence a little
+    if user has no time and locked the screen, user is removed from termination list, which effectively means that
+    user sessions won't be terminated unless user unlocks the screen or other user logs in via user switching
+    (we should not leave sessions without time left floating around forever)
+  * proper english label / message corrections from Phil Hudson (thanks!)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sat, 10 Oct 2020 19:59:35 +0300
+
+timekpr-next (0.4.2-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * added verbose output to timekpr installation
+  * fix license names in AppStream file
+  * better explain usage notes for CLI usage
+
+  * improvements
+    added average performance metrics for timekpr execution
+    introduce server ability to survive login manager DBUS interface crash and restore functional timekpr state after recovery
+
+  * refactoring
+    improve various functionality in timekpr codebase
+    tiny optimizations for variables
+    improvements for config reader / writer
+    improvements for in-memory config creation
+
+  * fixed #1891921, critical notifications did not show up until final countdown (if show all notifications was checked)
+    now critical notification will be shown approx one minute before time will end
+
+  * improved notification frequency and urgency (now only critical notifications are actually critical)
+    new frequency values:
+      if more than 2 hours are left, notifications are shown every 2 hours
+      if more than 1 hour is left, notifications are shown every 1 hour, i.e. one notification
+      if more than 30 minutes are left, notifications are shown every 30 minutes, i.e. one notification
+      if more than 5 minutes are left, notifications are shown every 10 minutes as warnings
+      if more than a minute is left, notifications are shown every 2 minutes as important warnings
+      if about a minute is left, notifications are shown every 1 minute (i.e. one notification) as CRITICAL notification
+
+  * improved handling of icons
+    use non GTK icons that should work in every DE
+
+  * improved allowed days and respective limits processing in case these are not set up properly
+    mismatch possible only by manually and incorrectly editing the config file
+
+  * fix continous time calculation on day change
+    this issue did not affect functionality
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fir, 4 Sep 2020 11:45:09 +0300
+
+timekpr-next (0.4.1-2ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * fixed a packaging bug with systemd units
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 30 Jul 2020 20:13:39 +0300
+
+timekpr-next (0.4.1-1ubuntu1~ppa1) UNRELEASED; urgency=medium
+
+  * added quality of life configuration options for client application (as suggested by one of Timekpr-nExT users)
+  ** added configuration option to set how long regular notifications should be visible
+  ** added configuration option to set how long Critical notifications should be visible
+  ** if time in seconds is set to 0 for either of options, notification will stay on until dismissed
+  ** added option to play a short (standard) notification bell sound when showing notifications (if supported by current DE)
+  ** added username verification for configuration files
+  ** translations for new options in client application
+  ** added full name display for username
+
+  * added quality of life improvements to administration app
+  ** added refresh to actual ("realtime") values for users that are logged in
+  ** a little optimization for time refresh in administration application
+  ** added full name display for usernames (if username is the same as full name, show only username)
+
+  * fixed and changed warnings / suggestions from user foka based on his observations when importing package into Debian:
+  ** adjust code install paths (with support for non-Debian distros as well)
+  ** create metainfo file
+  ** adjust service / desktop / control / install / changelog files
+  ** fixed some lintian warnings (will not be fixing all)
+  ** project README file
+
+  * changed version numbering scheme
+
+  * bug fixes in administration application
+  ** time spent / left was shown from previous time (day / week / month) user was logged in
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 27 Jul 2020 13:40:01 +0300
+
+timekpr-next (0.4.0~ppa1~ubuntu2) UNRELEASED; urgency=medium
+
+  * minor change for debian/install
+  * added Fedora/openSUSE build instructions
+  * improved user detection
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 12 Jul 2020 13:48:36 +0300
+
+timekpr-next (0.4.0~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Registered bug fixes:
+  ** killing user sessions that do not have "seats" will not switch to login manager TTY (#1861479)
+  ** properly show time spent for the day in administration app (#1882909)
+  ** properly set any number values (spinbuttons) in admin app (#1826672)
+  ** restore configuration from saved state in admin app when case uncheck / check is pressed (#1826673)
+  ** it's now possible to set daily limits as well as intervals for multiple days at once (#1826671)
+  * Discovered bug fixes:
+  ** fix config / control file recreation in case it's missing a configuration option entirely
+  ** fix icon and time representation in system notification area when user has unlimited time left
+  * Changes / improvements:
+  ** control files (.time) will now contain balance as well as time spent for day (existing TIME_SPENT will be removed, TIME_SPENT_BALANCE and TIME_SPENT_DAY are added)
+  ** console application (timekpra) changes
+  *** rename TIME_SPENT (previously used as saved time spent value) to TIME_SPENT_BALANCE
+  *** added an option which represents hide tray icon option (HIDE_TRAY_ICON)
+  *** rename option "userconfig" to "userinfo" which better represents returned values
+  *** add method to hide tray icon for user (--sethidetrayicon)
+  *** added time left for today (TIME_LEFT_DAY) which is calculated from saved state
+  ** console application (timekpra) improvements - added "live" (i.e. calculated every 3 secs) values for options below
+  *** ACTUAL_TIME_SPENT_SESSION - time spent in this session (since timekpr daemon startup)
+  *** ACTUAL_TIME_INACTIVE_SESSION - time user was inactive in this session (since timekpr daemon startup)
+  *** ACTUAL_TIME_SPENT_BALANCE - time spent balance (including added/removed bonus time)
+  *** ACTUAL_TIME_SPENT_DAY - time user spent this day (actual spent time, example: user has 1 hour, if there was a bonus 1 hr, this will show 2 hrs)
+  *** ACTUAL_TIME_LEFT_DAY -  how much time is left today
+  *** ACTUAL_TIME_LEFT_CONTINUOUS - how much time is left continuously (but no more than this and next day)
+  ** timekpr will not switch to login manager TTY after killing a user / session that is not active (i.e. in foreground)
+  ** timekpr will reload user list when opening admin application (newly added users will be available in timekpr right away)
+  ** add time inactive (actual) and time left (actual), i.e. when user is logged in, for admin app
+  ** add translations to new features
+  ** minor GUI changes
+  ** message which informs user that timekpr can not connect to screensaver is now shown only when all notifications are enabled
+  ** client application icon will not show if hide icon is checked in admin app
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Wed, 17 Jun 2020 00:33:21 +0300
+
+timekpr-next (0.3.7~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Added Czech language (thanks for translations to NOVAK Ludek)
+  * Fixed Hungarian language inclusion (thanks for spotting the typo to NOVAK Ludek)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Tue, 21 Apr 2020 23:19:42 +0300
+
+timekpr-next (0.3.6~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Added support for LockedHint to determine whether session is locked
+  ** requires systemd >= 230, e.g. Ubuntu 18.04 at least
+  ** this is in addition to client screensaver detection, but less used (e.g. KDE does not use this)
+  * Exclude closing and lingering sessions from being considered as active when tracking inactive sessions is enabled
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Tue, 21 Apr 2020 23:19:42 +0300
+
+timekpr-next (0.3.5~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Improved login manager detection for non-standard names
+  * Added a previously forgotten Hungarian language to installation
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 17 Apr 2020 09:56:07 +0300
+
+timekpr-next (0.3.4~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Added more screensaver workarounds for implementations for major DEs
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 14 Apr 2020 10:31:32 +0300
+
+timekpr-next (0.3.3~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Warn user if screensaver feature is not available for screen idle time detection
+  ** adjust translations as well
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 14 Apr 2020 11:02:31 +0300
+
+timekpr-next (0.3.2~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Introduced functionality to limit retries to screensaver for DEs that are not compatible with freedesktop or gnome screensaver interface
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 14 Apr 2020 16:04:02 +0300
+
+timekpr-next (0.3.1~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Introduced workarounds section for screensaver dbus interface to use gnome version instead of freedesktop for Unity and Gnome itself
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 13 Apr 2020 16:46:35 +0300
+
+timekpr-next (0.3.0~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Added possibility to determine screen lock status reliably for every DE that exposes screensaver status to DBUS (see below)
+  ** It's implemented in client <-> server fashion using org.freedesktop.ScreenSaver
+  ** but as Gnome3 is "special", I had to implement org.gnome.ScreenSaver as well
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 12 Apr 2020 17:10:06 +0300
+
+timekpr-next (0.2.13~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fix time reporting
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 24 Feb 2020 17:39:44 +0300
+
+timekpr-next (0.2.12~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fix time accounting when check interval is exactly at 0 secs in new hour (fixes a bug #1863482)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 17 Feb 2020 00:08:29 +0300
+
+timekpr-next (0.2.11~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Rework time accouting routines (fixes a bug #1861758)
+  * Fix for week and month accounting when showing continous time (#1856744)
+  * Rework session caching routines (for preparation to locking detection)
+  * Fixed dependencies for package
+  * Improvements for old StatusIcon (at start there will be a default icon and labels as with indicator)
+  * Tiny python import cleanup
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 7 Feb 2020 11:29:49 +0300
+
+timekpr-next (0.2.10~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fixed bug in configuration load when only couple of days are allowed per week
+  * Added hungarian translation (thanks)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 12 Jan 2020 15:46:08 +0300
+
+timekpr-next (0.2.9~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Improve user detection when username is the same as one of the login managers
+  * Small improvements with login manager detection
+  * Fix user time accounting due to issues with Python 3.8 and DBUS typecasts
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 25 Nov 2019 19:50:05 +0300
+
+timekpr-next (0.2.8~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fixed an issue for huuuuuuuge icons in in Budgie DE (however other DEs did not show such issue)
+  * A little logging improvement in VTNr search for login managers
+  * User list is now sorted
+  * Fixed an issue with object paths (timekpr uses usernames as part of pathnames) on DBUS which contain dots (.) and/or hyphens (-)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Tue, 24 Sep 2019 01:28:12 +0300
+
+timekpr-next (0.2.7~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fixed an issue when Timekpr-nExT confiuration may get corrupted or empty after sudden power outage
+  **  all config files as well as time accounting files have previous backups (.prev files)
+  **  invalid config / time files will have .invalid files to inspect later
+  **  improved configuration handling by retrieving as much as possible from non-qualified config file (if user messes up config manually)
+  * Improved CLI tools (error checking and help)
+  * Fixed icon handling in race conditions between client and server as well improved icon handling during limit changes
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 22 Aug 2019 19:23:42 +0300
+
+timekpr-next (0.2.6~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * Fixed an issue with Timekpr-nExT client not starting in non-major DE's (for example Deepin)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Wed, 5 Jun 2019 20:12:12 +0300
+
+timekpr-next (0.2.5~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * first official release
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  We, 5 Jun 2019 20:12:12 +0300
+
+timekpr-next (0.2.5~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * fixed application launcher names for unfortunate Gnome3 users
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Wed, 5 Jun 2019 20:12:12 +0300
+
+timekpr-next (0.2.4~ppa1~ubuntu2) UNRELEASED; urgency=medium
+
+  * localization updates (fixes to translations all over the place, thanks to JP Lord)
+  **  updated all other languages with capitalizations
+  * added French translations
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 29 Apr 2019 12:47:46 +0300
+
+timekpr-next (0.2.4~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * implemented TTY switching functionality for those cases, when login manager sits on different TTY than session itself (this should fix #1823717)
+  **  the implementation is as follows: Timekpr-nExT tries to determine on which TTY login manager sits and saves it's TTY number, login managers have their
+  **  own users in standard installations, therefore we detect them using specific usernames (maybe not the best solution, but it's a solution)
+  * fixed control file initialization when timekpr starts (fixes #1802583)
+  * fixed icon in notification area when there is no time limit per day, but time intervals are limited
+  * improved termination list handling
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sat, 27 Apr 2019 23:26:05 +0300
+
+timekpr-next (0.2.3~ppa1~ubuntu3) UNRELEASED; urgency=medium
+
+  * fixed a bug in logging when multiple users use machine at the same time (permission problem)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sat, 27 Apr 2019 17:50:24 +0300
+
+timekpr-next (0.2.3~ppa1~ubuntu2) UNRELEASED; urgency=medium
+
+  * kill leftover processes for the user which do not originate from session processes
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 14 Apr 2019 11:51:41 +0300
+
+timekpr-next (0.2.3~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * kill inactive sessions as well (up until this point inactive sessions were saved from killing)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 14 Apr 2019 11:51:41 +0300
+
+timekpr-next (0.2.2~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * logging improvements (all client side logs are written to /tmp instead of HOME)
+  * tweak to translation credits (if none are supplied)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 12 Apr 2019 15:58:56 +0200
+
+timekpr-next (0.2.1~ppa1~ubuntu2) UNRELEASED; urgency=medium
+
+  * packaging fix - we do not need to reference login managers any more
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 08 Apr 2019 18:34:31 +0300
+
+timekpr-next (0.2.1~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * added Italian and German translations
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 8 Apr 2019 8:25:17 +0300
+
+timekpr-next (0.2.0~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * first beta release
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 29 Mar 2019 8:22:17 +0300
+
+timekpr-next (0.2.0~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * implemented localization
+  * added Latvian translation
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 29 Mar 2019 8:22:17 +0300
+
+timekpr-next (0.1.15~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * implemented localization (translations pending)
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 28 Mar 2019 18:27:42 +0300
+
+timekpr-next (0.1.14~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * timekpr client code optimization and small bug fixes
+  * added speech output
+
+  TODO: localization
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 21 Mar 2019 21:06:43 +0300
+
+timekpr-next (0.1.13~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * finalized admin GUI
+  * bug fixes here and there
+
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 18 Mar 2019 10:33:59 +0300
+
+timekpr-next (0.1.12~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * finalized user admin GUI
+  * bug fixes here and there
+
+  TODO: timekpr administration via GUI
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 15 Mar 2019 07:11:23 +0300
+
+timekpr-next (0.1.11~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * implemented user admin GUI
+
+  TODO: timekpr administration via GUI
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 03 Mar 2019 00:42:11 +0300
+
+timekpr-next (0.1.10~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * fixed a bug for time accounting when there is a limit set up, but hours are not limited at all
+  * changed CLI option style from "-" to "--"
+
+  TODO: timekpr administration via GUI
+  TODO: user administration via GUI
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Tue, 26 Feb 2019 23:08:17 +0300
+
+timekpr-next (0.1.9~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * added weekly and monthly quota administration and processing
+  * minor time accounting fixes
+
+  TODO: timekpr administration via GUI
+  TODO: user administration via GUI
+  TODO: week and month quotas reporting to user
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 22 Feb 2019 18:11:35 +0300
+
+timekpr-next (0.1.8~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * fixes for user administration via DBUS and CLI
+  * major time accounting fixes
+  * clean up for user data processor
+
+  TODO: timekpr administration via GUI
+  TODO: user administration via GUI
+  TODO: week and month quotas
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Fri, 15 Feb 2019 6:53:03 +0300
+
+timekpr-next (0.1.7~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * implemented user administration via DBUS
+  * fixed some bugs with client configuration
+  * fixed logrotate configuration
+
+  TODO: administration via DBUS and CLI/GUI around it
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Thu, 17 Jan 2019 07:35:19 +0300
+
+timekpr-next (0.1.6~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * fixed issue with time being improperly calculated when user is set from "unlimited" mode to limited
+  * fixed issue about time initialization when day changes and previously user was in "unlimited" mode (mode was changed to limited + he never logged off)
+
+  TODO: administration via DBUS and CLI/GUI around it
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 18 Dec 2018 20:03:22 +0300
+
+timekpr-next (0.1.5~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * fixed lazy dbus connection initialization on client side
+  * fixes for client side GUI
+  * minor fixes for time accounting and logging
+
+  TODO: administration via DBUS and CLI/GUI around it
+  TODO: localization and speech
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Sun, 11 Nov 2018 07:55:46 +0300
+
+timekpr-next (0.1.4~ppa1~ubuntu1) UNRELEASED; urgency=medium
+
+  * first alpha version of timekpr (a lot has changed since old timekpr 0.3x version)
+  ** new impementation of timekpr-revived (there is almost nothing left of timekpr-revived)
+  ** released to very limited testers
+  ** python3 and gtk3 are the must
+  ** all based on DBUS (server and client)
+  ** session management relies on systemd's login1
+  ** notifications through DBUS (exclusively)
+  ** server is managing everything, except notifications which is the responsibility of client
+  ** major features include the following
+  *** support DE's which implement appindicaor3 (Unity/Gnome3¹/KDE5/...) and legacy statusIcon
+  *** support Ubuntu 12.04+ (on launchpad timekpr can support the versions which are on supported distro list)
+  *** it's possible to configure which session types are accountable
+  *** inactive session time is NOT accounted (if configured so)
+  *** time is configurable by days, hours and minutes (yes, limits within hour are possible)
+  *** there is no "hard" account lock, user will be logged out in 15 seconds if time is over
+  *** synchronous operation between  server and client
+  *** improved notifications about system behaviour
+  **** notification about actual limit change
+  **** notification about general configuration change
+  **** notification logic improved
+  **** client acts merely as notificator
+  **** client can view limits applied by admin
+
+  ¹ one has to install extension to show timekpr icon, otherwise icon is not shown (gnome architects do not want status icons in their design anymore, timekpr can not do anything about it)
+
+  TODO: administration via DBUS and CLI/GUI around it
+
+ -- Eduards Bezverhijs <edzis@inbox.lv>  Mon, 17 Sep 2018 08:02:17 +0300

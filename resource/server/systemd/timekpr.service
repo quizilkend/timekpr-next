@@ -1,0 +1,17 @@
+[Unit]
+Description=Timekpr-nExT daemon service
+Documentation=file:/etc/timekpr/timekpr.conf
+After=multi-user.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/usr/lib/python3/dist-packages/timekpr/
+ExecStart=/usr/bin/timekprd
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

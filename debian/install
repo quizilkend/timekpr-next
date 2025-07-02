@@ -1,0 +1,107 @@
+# binaries
+bin/timekpra usr/bin/
+bin/timekprc usr/bin/
+bin/timekprd usr/bin/
+
+# config files
+resource/server/dbus/timekpr.conf etc/dbus-1/system.d/
+resource/server/logrotate.d/timekpr etc/logrotate.d/
+resource/server/polkit/com.ubuntu.timekpr.pkexec.policy usr/share/polkit-1/actions/
+resource/server/systemd/timekpr.service lib/systemd/system/
+resource/server/timekpr.conf etc/timekpr/
+
+# sample runtime files
+resource/server/timekpr.USER.conf var/lib/timekpr/config/
+resource/server/USER.time var/lib/timekpr/work/
+
+# icons
+resource/icons/timekpr-128.png usr/share/icons/hicolor/128x128/apps/
+resource/icons/timekpr-48.png usr/share/icons/hicolor/48x48/apps/
+resource/icons/timekpr-64.png usr/share/icons/hicolor/64x64/apps/
+resource/icons/timekpr-client-128.png usr/share/icons/hicolor/128x128/apps/
+resource/icons/timekpr-client-48.png usr/share/icons/hicolor/48x48/apps/
+resource/icons/timekpr-client-64.png usr/share/icons/hicolor/64x64/apps/
+resource/icons/timekpr-client-logo.svg usr/share/timekpr/icons/
+resource/icons/timekpr-client.svg usr/share/icons/hicolor/scalable/apps/
+resource/icons/timekpr-logo.svg usr/share/timekpr/icons/
+resource/icons/timekpr-padlock-limited-green.svg usr/share/timekpr/icons/
+resource/icons/timekpr-padlock-limited-red.svg usr/share/timekpr/icons/
+resource/icons/timekpr-padlock-limited-yellow.svg usr/share/timekpr/icons/
+resource/icons/timekpr-padlock-limited-uacc.svg usr/share/timekpr/icons/
+resource/icons/timekpr-padlock-unlimited-green.svg usr/share/timekpr/icons/
+resource/icons/timekpr.svg usr/share/icons/hicolor/scalable/apps/
+
+# launchers
+resource/launchers/timekpr-admin.desktop usr/share/applications/
+resource/launchers/timekpr-admin-su.desktop usr/share/applications/
+resource/launchers/timekpr-client.desktop etc/xdg/autostart/
+
+# metainfo
+resource/appstream/org.timekpr.timekpr-next.metainfo.xml usr/share/metainfo/
+
+# forms
+resource/client/forms/about.glade usr/share/timekpr/client/forms/
+resource/client/forms/admin.glade usr/share/timekpr/client/forms/
+resource/client/forms/client.glade usr/share/timekpr/client/forms/
+
+# python common
+common/constants/constants.py usr/lib/python3/dist-packages/timekpr/common/constants/
+common/constants/__init__.py usr/lib/python3/dist-packages/timekpr/common/constants/
+common/constants/messages.py usr/lib/python3/dist-packages/timekpr/common/constants/
+common/log/__init__.py usr/lib/python3/dist-packages/timekpr/common/log/
+common/log/log.py usr/lib/python3/dist-packages/timekpr/common/log/
+common/utils/config.py usr/lib/python3/dist-packages/timekpr/common/utils/
+common/utils/__init__.py usr/lib/python3/dist-packages/timekpr/common/utils/
+common/utils/misc.py usr/lib/python3/dist-packages/timekpr/common/utils/
+common/utils/notifications.py usr/lib/python3/dist-packages/timekpr/common/utils/
+
+# python client
+client/admin/adminprocessor.py usr/lib/python3/dist-packages/timekpr/client/admin/
+client/gui/admingui.py usr/lib/python3/dist-packages/timekpr/client/gui/
+client/gui/clientgui.py usr/lib/python3/dist-packages/timekpr/client/gui/
+client/gui/__init__.py usr/lib/python3/dist-packages/timekpr/client/gui/
+client/__init__.py usr/lib/python3/dist-packages/timekpr/client/
+client/interface/dbus/administration.py usr/lib/python3/dist-packages/timekpr/client/interface/dbus/
+client/interface/dbus/daemon.py usr/lib/python3/dist-packages/timekpr/client/interface/dbus/
+client/interface/dbus/__init__.py usr/lib/python3/dist-packages/timekpr/client/interface/dbus/
+client/interface/dbus/notifications.py usr/lib/python3/dist-packages/timekpr/client/interface/dbus/
+client/interface/__init__.py usr/lib/python3/dist-packages/timekpr/client/interface/
+client/interface/speech/espeak.py usr/lib/python3/dist-packages/timekpr/client/interface/speech/
+client/interface/speech/__init__.py usr/lib/python3/dist-packages/timekpr/client/interface/speech/
+client/interface/ui/appindicator.py usr/lib/python3/dist-packages/timekpr/client/interface/ui/
+client/interface/ui/__init__.py usr/lib/python3/dist-packages/timekpr/client/interface/ui/
+client/interface/ui/notificationarea.py usr/lib/python3/dist-packages/timekpr/client/interface/ui/
+client/interface/ui/statusicon.py usr/lib/python3/dist-packages/timekpr/client/interface/ui/
+client/timekpra.py usr/lib/python3/dist-packages/timekpr/client/
+client/timekprc.py usr/lib/python3/dist-packages/timekpr/client/
+
+# python server
+server/config/configprocessor.py usr/lib/python3/dist-packages/timekpr/server/config/
+server/config/userhelper.py usr/lib/python3/dist-packages/timekpr/server/config/
+server/__init__.py usr/lib/python3/dist-packages/timekpr/server/
+server/interface/dbus/consolekit/__init__.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/consolekit/
+server/interface/dbus/consolekit/manager.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/consolekit/
+server/interface/dbus/consolekit/user.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/consolekit/
+server/interface/dbus/daemon.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/
+server/interface/dbus/__init__.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/
+server/interface/dbus/logind/__init__.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/logind/
+server/interface/dbus/logind/manager.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/logind/
+server/interface/dbus/logind/user.py usr/lib/python3/dist-packages/timekpr/server/interface/dbus/logind/
+server/interface/__init__.py usr/lib/python3/dist-packages/timekpr/server/interface/
+server/timekprd.py usr/lib/python3/dist-packages/timekpr/server/
+server/user/playtime.py usr/lib/python3/dist-packages/timekpr/server/user/
+server/user/__init__.py usr/lib/python3/dist-packages/timekpr/server/user/
+server/user/userdata.py usr/lib/python3/dist-packages/timekpr/server/user/
+
+# translations (only the ones that are ready will be included)
+resource/locale/be/LC_MESSAGES/timekpr.mo usr/share/locale/be/LC_MESSAGES/
+#resource/locale/cs/LC_MESSAGES/timekpr.mo usr/share/locale/cs/LC_MESSAGES/
+resource/locale/es/LC_MESSAGES/timekpr.mo usr/share/locale/es/LC_MESSAGES/
+resource/locale/de/LC_MESSAGES/timekpr.mo usr/share/locale/de/LC_MESSAGES/
+resource/locale/fr/LC_MESSAGES/timekpr.mo usr/share/locale/fr/LC_MESSAGES/
+#resource/locale/hu/LC_MESSAGES/timekpr.mo usr/share/locale/hu/LC_MESSAGES/
+resource/locale/it/LC_MESSAGES/timekpr.mo usr/share/locale/it/LC_MESSAGES/
+resource/locale/lv/LC_MESSAGES/timekpr.mo usr/share/locale/lv/LC_MESSAGES/
+resource/locale/nl/LC_MESSAGES/timekpr.mo usr/share/locale/nl/LC_MESSAGES/
+resource/locale/pt/LC_MESSAGES/timekpr.mo usr/share/locale/pt/LC_MESSAGES/
+resource/locale/ru/LC_MESSAGES/timekpr.mo usr/share/locale/ru/LC_MESSAGES/

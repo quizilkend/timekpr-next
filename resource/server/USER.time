@@ -1,0 +1,17 @@
+[USER]
+# total spent time balance for today
+TIME_SPENT_BALANCE = 0
+# total actual spent for today
+TIME_SPENT_DAY = 0
+# total spent for this week
+TIME_SPENT_WEEK = 0
+# total spent for this month
+TIME_SPENT_MONTH = 0
+# last update time of the file
+LAST_CHECKED = 2020-06-15 19:51:49
+
+[USER.PLAYTIME]
+# total PlayTime balance spent for this day
+PLAYTIME_SPENT_BALANCE = 0
+# total PlayTime spent for this day
+PLAYTIME_SPENT_DAY = 0
