@@ -272,6 +272,28 @@ class timekprAdminGUI(object):
             # fill in the intervals
             self._timekprAdminFormBuilder.get_object("TimekprUserConfWkMonLimitsLS").append([rType[0], rType[1], 0, _NO_TIME_LIMIT_LABEL])
 
+        # ## PlayTime weekly limits ##
+        # type
+        rend = Gtk.CellRendererText()
+        col = Gtk.TreeViewColumn(msg.getTranslation("TK_MSG_WK_MON_LABEL"), rend, text=1)
+        col.set_min_width(90)
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsTreeView").append_column(col)
+        # PlayTime weekly limit
+        rend = Gtk.CellRendererText()
+        rend.set_property("editable", True)
+        rend.connect("edited", self.userPlayTimeWeeklyLimitsEdited)
+        col = Gtk.TreeViewColumn(msg.getTranslation("TK_MSG_WK_MON_LIMIT_LABEL"), rend, text=3)
+        col.set_min_width(95)
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsTreeView").append_column(col)
+        # final col
+        col = Gtk.TreeViewColumn("", Gtk.CellRendererText())
+        col.set_min_width(20)
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsTreeView").append_column(col)
+        # clear out existing data
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsLS").clear()
+        # add weekly entry
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsLS").append(["WK", msg.getTranslation("TK_MSG_WEEKLY_LABEL"), 0, _NO_TIME_LIMIT_LABEL])
+
         # ## PlayTime elements ##
         # day name
         col = Gtk.TreeViewColumn(msg.getTranslation("TK_MSG_DAY_LIST_DAY_LABEL"), Gtk.CellRendererText(), text=1)
@@ -351,6 +373,7 @@ class timekprAdminGUI(object):
             "TimekprWeekDaysTreeView",
             "TimekprHourIntervalsTreeView",
             "TimekprUserConfWkMonLimitsTreeView",
+            "TimekprUserPlayTimeWkLimitsTreeView",
             "TimekprUserPlayTimeLimitsTreeView",
             "TimekprUserPlayTimeProcessesTreeView",
             # radio / control groups
@@ -358,6 +381,8 @@ class timekprAdminGUI(object):
             "TimekprUserConfDaySettingsSetDaysIntervalsControlBX",
             "TimekprUserConfWkMonLimitsAdjustmentsBX",
             "TimekprUserConfWkMonLimitsAdjustmentControlButtonsBX",
+            "TimekprUserPlayTimeWkLimitsAdjustmentsBX",
+            "TimekprUserPlayTimeWkLimitsAdjustmentControlButtonsBX",
             "TimekprUserPlayTimeLimitsHeaderControlBX",
             "TimekprUserConfAddOptsLockoutTypeChoiceBoxBX",
             "TimekprUserConfTodaySettingsChoiceBX"
@@ -1385,6 +1410,21 @@ class timekprAdminGUI(object):
         ):
             self._timekprAdminFormBuilder.get_object(rCtrl).set_sensitive(True)
 
+        # ## PlayTime limit per week ##
+        for rWkDay in self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsLS"):
+            # week
+            if rWkDay[0] == "WK":
+                limit = self._tkSavedCfg.get("playTimeLimitWeek", 0)
+                rWkDay[2] = limit
+                rWkDay[3] = self.formatTimeStr(limit, True, True) if limit > 0 else _NO_TIME_LIMIT_LABEL
+        # enable editing
+        for rCtrl in (
+            "TimekprUserPlayTimeWkLimitsTreeView",
+            "TimekprUserPlayTimeWkLimitsAdjustmentsBX",
+            "TimekprUserPlayTimeWkLimitsAdjustmentControlButtonsBX"
+        ):
+            self._timekprAdminFormBuilder.get_object(rCtrl).set_sensitive(True)
+
         # current day
         currDay = datetime.now().isoweekday()-1
         # determine curent day and point to it
@@ -1695,6 +1735,12 @@ class timekprAdminGUI(object):
         tmpArray = [rIt[3] for rIt in limitSt if rIt[2]]
         control = "TimekprUserPlayTimeLimitsLSL"
         changeControl[control] = {"st": tmpArray != self._tkSavedCfg["playTimeLimitDaysLimits"], "val": tmpArray.copy()}
+
+        # ## PlayTime weekly limits ###
+        weekLimitSt = self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsLS")
+        weekLimitValue = weekLimitSt[0][2] if len(weekLimitSt) > 0 else 0
+        control = "TimekprUserPlayTimeWkLimitsLS"
+        changeControl[control] = {"st": weekLimitValue != self._tkSavedCfg.get("playTimeLimitWeek", 0), "val": weekLimitValue}
 
         # ## PlayTime activities ###
         tmpArray = []
@@ -2136,6 +2182,18 @@ class timekprAdminGUI(object):
                         self._tkSavedCfg["playTimeLimitDaysLimits"] = rVal["val"]
                         # print success message
                         self.setTimekprStatus(False, msg.getTranslation("TK_MSG_STATUS_PT_TIMELIMITS_PROCESSED"))
+                # ## PlayTime weekly limit ###
+                elif rKey == "TimekprUserPlayTimeWkLimitsLS":
+                    # call server
+                    result, message = self._timekprAdminConnector.setPlayTimeLimitForWeek(userName, rVal["val"])
+                    # successful call
+                    if result == 0:
+                        # cnt
+                        changeCnt += 1
+                        # set internal state
+                        self._tkSavedCfg["playTimeLimitWeek"] = rVal["val"]
+                        # print success message
+                        self.setTimekprStatus(False, msg.getTranslation("TK_MSG_STATUS_PT_WEEKLY_LIMIT_PROCESSED"))
                 # ## PlayTime activities ###
                 elif rKey == "TimekprUserPlayTimeProcessesLS":
                     # call server
@@ -2461,6 +2519,26 @@ class timekprAdminGUI(object):
                 # calculate control availability
                 self.calculateUserConfigControlAvailability()
 
+    def verifyAndSetPlayTimeWeeklyLimits(self, path, text):
+        """Verify and set PlayTime weekly values"""
+        # store
+        limitsSt = self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsLS")
+        # value before
+        secsBefore = limitsSt[path][2]
+        # def (PlayTime weekly limits only support weekly, so always "w")
+        secs = self.verifyAndCalcLimit(text, "w")
+        # if we could calculate seconds (i.e. entered text is correct)
+        if secs is not None:
+            # if values before and after does not change, we do nothing
+            if secsBefore != secs:
+                # format secs
+                text = self.formatTimeStr(secs, pFormatSecs=True, pFormatDays=True) if secs > 0 else _NO_TIME_LIMIT_LABEL
+                # set values
+                limitsSt[path][3] = text
+                limitsSt[path][2] = secs
+                # calculate control availability
+                self.calculateUserPlayTimeConfigControlAvailability()
+
     def verifyAndSetDayLimits(self, path, text, pIsPlayTime=False):
         """Verify and set daily values"""
         pass
@@ -2648,6 +2726,10 @@ class timekprAdminGUI(object):
         """Set internal representation of in-place edited value"""
         self.verifyAndSetDayLimits(path, text, pIsPlayTime=True)
 
+    def userPlayTimeWeeklyLimitsEdited(self, widget, path, text):
+        """Set internal representation of in-place edited value for PlayTime weekly limits"""
+        self.verifyAndSetPlayTimeWeeklyLimits(path, text)
+
     def userLimitsHourUnaccountableToggled(self, widget, path):
         """Set internal representation of in-place edited value"""
         # store
@@ -2750,6 +2832,14 @@ class timekprAdminGUI(object):
     def playTimeLimitsDecreaseClicked(self, evt):
         """Decrease PlayTime limits"""
         self.adjustTimeLimits(pType="PlayTimeLimits", pAdd=False)
+
+    def playTimeWkLimitsIncreaseClicked(self, evt):
+        """Increase PlayTime weekly limits"""
+        self.adjustTimeLimits(pType="PlayTimeWeekLimits", pAdd=True)
+
+    def playTimeWkLimitsDecreaseClicked(self, evt):
+        """Decrease PlayTime weekly limits"""
+        self.adjustTimeLimits(pType="PlayTimeWeekLimits", pAdd=False)
 
     def dayPlayTimeAvailabilityChanged(self, widget, path):
         """Change PlayTime minutes depending on day availability"""
@@ -2922,6 +3012,14 @@ class timekprAdminGUI(object):
             ls = "TimekprUserPlayTimeLimitsLS"
             rb = [["TimekprUserPlayTimeLimitsHrRB", cons.TK_LIMIT_PER_HOUR, cons.TK_LIMIT_PER_DAY, 3, 4, self.calculateUserPlayTimeConfigControlAvailability, True, False],
                 ["TimekprUserPlayTimeLimitsMinRB", cons.TK_LIMIT_PER_MINUTE, cons.TK_LIMIT_PER_DAY, 3, 4, self.calculateUserPlayTimeConfigControlAvailability, True, False]]
+        elif pType == "PlayTimeWeekLimits":
+            tw = "TimekprUserPlayTimeWkLimitsTreeView"
+            ls = "TimekprUserPlayTimeWkLimitsLS"
+            # For PlayTime weekly limits, we use spin buttons to get the adjustment amount directly
+            hourValue = int(self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsAdjustmentHrSB").get_value())
+            minValue = int(self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeWkLimitsAdjustmentMinSB").get_value())
+            totalAdjustmentSeconds = hourValue * cons.TK_LIMIT_PER_HOUR + minValue * cons.TK_LIMIT_PER_MINUTE
+            rb = [["", totalAdjustmentSeconds, cons.TK_LIMIT_PER_WEEK, 2, 3, self.calculateUserPlayTimeConfigControlAvailability, True, True]]
         elif pType == "DailyLimits":
             tw = "TimekprWeekDaysTreeView"
             ls = "TimekprWeekDaysLS"
@@ -2956,9 +3054,13 @@ class timekprAdminGUI(object):
             # def
             adj = None
             # determine adjustment amount
-            for rRb in (rRb for rRb in rb if self._timekprAdminFormBuilder.get_object(rRb[0]).get_active()):
-                # if checked
-                adj = rRb
+            if pType == "PlayTimeWeekLimits":
+                # For PlayTime weekly limits, we have only one "virtual" adjustment entry
+                adj = rb[0]
+            else:
+                for rRb in (rRb for rRb in rb if self._timekprAdminFormBuilder.get_object(rRb[0]).get_active()):
+                    # if checked
+                    adj = rRb
             # check type found
             if adj is not None:
                 # limits store
@@ -2979,12 +3081,19 @@ class timekprAdminGUI(object):
                             adj[2] = cons.TK_LIMIT_PER_WEEK
                         elif limitsSt[idx][0] == "MON":
                             adj[2] = cons.TK_LIMIT_PER_MONTH
+                    # for PlayTime weekly limits
+                    elif pType == "PlayTimeWeekLimits":
+                        # Always use weekly limit for PlayTime weekly limits
+                        adj[2] = cons.TK_LIMIT_PER_WEEK
                     # adjust value
                     secs = int(limitsSt[idx][adj[3]]) + adj[1] * (1 if pAdd else -1)
                     secs = min(adj[2], max(0, secs))
                     # set up new value
                     limitsSt[idx][adj[3]] = secs
-                    limitsSt[idx][adj[4]] = self.formatTimeStr(secs, adj[6], adj[7])
+                    if pType == "PlayTimeWeekLimits":
+                        limitsSt[idx][adj[4]] = self.formatTimeStr(secs, adj[6], adj[7]) if secs > 0 else _NO_TIME_LIMIT_LABEL
+                    else:
+                        limitsSt[idx][adj[4]] = self.formatTimeStr(secs, adj[6], adj[7])
                     # in case of intervals, we need to manage the end / start of it too
                     if pType == "Intervals":
                         # now check the other end whether start is later than end (from both sides)

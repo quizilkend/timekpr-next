@@ -245,6 +245,18 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="TimekprUserPlayTimeWkLimitsLS">
+    <columns>
+      <!-- column-name adjustmentType -->
+      <column type="gchararray"/>
+      <!-- column-name adjustmentTypeStr -->
+      <column type="gchararray"/>
+      <!-- column-name allowedSeconds -->
+      <column type="guint"/>
+      <!-- column-name allowedSecondsStr -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkImage" id="TimekprUserPlayTimeLimitsAddButtonImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -274,7 +286,27 @@
     <property name="step-increment">1</property>
     <property name="page-increment">4</property>
   </object>
+  <object class="GtkAdjustment" id="TimekprUserPlayTimeWkLimitsHrAdjustment">
+    <property name="upper">168</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">8</property>
+  </object>
+  <object class="GtkAdjustment" id="TimekprUserPlayTimeWkLimitsMinAdjustment">
+    <property name="upper">60</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkImage" id="TimekprUserPlayTimeLimitsRemoveButtonImage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="stock">gtk-remove</property>
+  </object>
+  <object class="GtkImage" id="TimekprUserPlayTimeWkLimitsAdjustmentsIncreaseButtonImage">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="stock">gtk-add</property>
+  </object>
+  <object class="GtkImage" id="TimekprUserPlayTimeWkLimitsAdjustmentsDecreaseButtonImage">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="stock">gtk-remove</property>
@@ -2408,6 +2440,217 @@ Please enable / disable days for the user and set time allowance for PlayTime ac
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="TimekprUserPlayTimeWkLimitsBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="margin-left">5</property>
+                                <property name="margin-right">5</property>
+                                <property name="margin-bottom">5</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkBox" id="TimekprUserPlayTimeWkLimitsLabelBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-right">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkLabel" id="TimekprUserPlayTimeWkLimitsLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes">PlayTime weekly limits</property>
+                                        <property name="wrap">True</property>
+                                        <attributes>
+                                          <attribute name="style" value="italic"/>
+                                        </attributes>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox" id="TimekprUserPlayTimeWkLimitsHeaderBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="spacing">10</property>
+                                        <child>
+                                          <object class="GtkBox" id="TimekprUserPlayTimeWkLimitsAdjustmentsBX">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="valign">center</property>
+                                            <property name="spacing">5</property>
+                                            <child>
+                                              <object class="GtkSpinButton" id="TimekprUserPlayTimeWkLimitsAdjustmentHrSB">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="tooltip-text" translatable="yes">Hours to add / subtract</property>
+                                                <property name="adjustment">TimekprUserPlayTimeWkLimitsHrAdjustment</property>
+                                                <property name="numeric">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="TimekprUserPlayTimeWkLimitsAdjustmentHrLB">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="valign">center</property>
+                                                <property name="label" translatable="yes">h</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton" id="TimekprUserPlayTimeWkLimitsAdjustmentMinSB">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="tooltip-text" translatable="yes">Minutes to add / subtract</property>
+                                                <property name="adjustment">TimekprUserPlayTimeWkLimitsMinAdjustment</property>
+                                                <property name="numeric">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel" id="TimekprUserPlayTimeWkLimitsAdjustmentMinLB">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="valign">center</property>
+                                                <property name="label" translatable="yes">m</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">3</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkGrid" id="TimekprUserPlayTimeWkLimitsAdjustmentControlButtonsBX">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="valign">center</property>
+                                            <property name="row-spacing">2</property>
+                                            <property name="column-spacing">2</property>
+                                            <child>
+                                              <object class="GtkButton" id="TimekprUserPlayTimeWkLimitsAdjustmentsIncreaseBT">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="receives-default">True</property>
+                                                <property name="tooltip-text" translatable="yes">Increase weekly PlayTime allowance by selected time unit (hours or minutes).</property>
+                                                <property name="image">TimekprUserPlayTimeWkLimitsAdjustmentsIncreaseButtonImage</property>
+                                                <signal name="clicked" handler="playTimeWkLimitsIncreaseClicked" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">0</property>
+                                                <property name="top-attach">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkButton" id="TimekprUserPlayTimeWkLimitsAdjustmentsDecreaseBT">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="receives-default">True</property>
+                                                <property name="tooltip-text" translatable="yes">Decrease weekly PlayTime allowance by selected time unit (hours or minutes).</property>
+                                                <property name="image">TimekprUserPlayTimeWkLimitsAdjustmentsDecreaseButtonImage</property>
+                                                <signal name="clicked" handler="playTimeWkLimitsDecreaseClicked" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="left-attach">1</property>
+                                                <property name="top-attach">0</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="pack-type">end</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox" id="TimekprUserPlayTimeWkLimitsInfoBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-right">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkScrolledWindow" id="TimekprUserPlayTimeWkLimitsScrolledWindow">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="shadow-type">in</property>
+                                        <property name="min-content-width">220</property>
+                                        <property name="min-content-height">50</property>
+                                        <child>
+                                          <object class="GtkTreeView" id="TimekprUserPlayTimeWkLimitsTreeView">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">Weekly PlayTime limits for the user.
+
+These limits are applied to user together with daily PlayTime limits.</property>
+                                            <property name="model">TimekprUserPlayTimeWkLimitsLS</property>
+                                            <property name="enable-search">False</property>
+                                            <property name="search-column">0</property>
+                                            <signal name="key-press-event" handler="navigateTreeView" swapped="no"/>
+                                            <child internal-child="selection">
+                                              <object class="GtkTreeSelection" id="TimekprUserPlayTimeWkLimitsTreeViewSelection"/>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>

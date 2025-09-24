@@ -183,6 +183,7 @@ def initMessages():
     _messages["TK_MSG_STATUS_PT_ALLOWED_UNLIMITED_INTERVALS_PROCESSED"] = {"s": _("PlayTime allowed during unaccounted intervals flag for the user has been processed")}
     _messages["TK_MSG_STATUS_PT_ALLOWEDDAYS_PROCESSED"] = {"s": _("PlayTime allowed days for user have been processed")}
     _messages["TK_MSG_STATUS_PT_TIMELIMITS_PROCESSED"] = {"s": _("PlayTime day limits for user have been processed")}
+    _messages["TK_MSG_STATUS_PT_WEEKLY_LIMIT_PROCESSED"] = {"s": _("PlayTime weekly limit for user has been processed")}
     _messages["TK_MSG_STATUS_PT_ACTIVITIES_PROCESSED"] = {"s": _("PlayTime activities for user have been processed")}
     _messages["TK_MSG_STATUS_NODAY_SELECTED"] = {"s": _("Please select a day to set the limits")}
     _messages["TK_MSG_STATUS_INTERVAL_OVERLAP_DETECTED"] = {"s": _("That interval overlaps with an existing one")}
