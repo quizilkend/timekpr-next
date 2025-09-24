@@ -754,6 +754,30 @@ class timekprAdminClient(object):
             # log error
             log.consoleOut(message)
 
+    def processSetPlayTimeLimitForWeek(self, pUserName, pPlayTimeLimitWeek):
+        """Set PlayTime limit for week for the user"""
+        # initial result / message
+        result, message = 0, ""
+
+        # preprocess
+        try:
+            # validation and sanity check
+            limit = int(pPlayTimeLimitWeek)
+        except Exception as ex:
+            # log error
+            result = -1
+            message = msg.getTranslation("TK_MSG_PARSE_ERROR") % (str(ex))
+
+        # preprocess successful
+        if result == 0:
+            # invoke
+            result, message = self._timekprAdminConnector.setPlayTimeLimitForWeek(pUserName, limit)
+
+        # process
+        if result != 0:
+            # log error
+            log.consoleOut(message)
+
     def processSetPlayTimeActivities(self, pUserName, pPlayTimeActivities):
         """Process PlayTime activities"""
         # defaults
