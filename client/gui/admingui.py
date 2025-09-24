@@ -240,6 +240,8 @@ class timekprAdminGUI(object):
         col = Gtk.TreeViewColumn("", Gtk.CellRendererText())
         col.set_min_width(20)
         self._timekprAdminFormBuilder.get_object("TimekprHourIntervalsTreeView").append_column(col)
+        # clear
+        self._timekprAdminFormBuilder.get_object("TimekprHourIntervalsLS").clear()
 
         # clear out existing intervals
         self._timekprAdminFormBuilder.get_object("TimekprWeekDaysLS").clear()
@@ -311,7 +313,11 @@ class timekprAdminGUI(object):
         col = Gtk.TreeViewColumn(msg.getTranslation("TK_MSG_PLAYTIME_ACTIVITY_DESCRIPTION_LABEL"), rend, text=2)
         col.set_min_width(120)
         self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeProcessesTreeView").append_column(col)
+        # clear
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeProcessesLS").clear()
 
+        # clear out existing PlayTime limits  
+        self._timekprAdminFormBuilder.get_object("TimekprUserPlayTimeLimitsLS").clear()
         # lets prepare week days for PlayTime
         for rDay in range(1, 7+1):
             # fill in the intervals
