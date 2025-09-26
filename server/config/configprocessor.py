@@ -78,6 +78,8 @@ class timekprUserConfigurationProcessor(object):
         if weekChanged:
             # balance and day must be changed
             self._timekprUserControl.setUserTimeSpentWeek(0)
+            # PlayTime week reset
+            self._timekprUserControl.setUserPlayTimeSpentWeek(0)
         # set defaults in case month changed
         if monthChanged:
             # balance and day must be changed
@@ -235,6 +237,8 @@ class timekprUserConfigurationProcessor(object):
                     # PlayTime limits per week days
                     allowedWeekDayLimits = self._timekprUserConfig.getUserPlayTimeLimitsPerWeekdays()
                     userConfigurationStore["PLAYTIME_LIMITS_PER_WEEKDAYS"] = list(map(dbus.Int32, allowedWeekDayLimits)) if len(allowedWeekDayLimits) > 0 else dbus.Array(signature="i")
+                    # PlayTime limit per week
+                    userConfigurationStore["PLAYTIME_LIMIT_PER_WEEK"] = self._timekprUserConfig.getUserPlayTimeWeekLimit()
                     # PlayTime activities
                     playTimeActivities = self._timekprUserConfig.getUserPlayTimeActivities()
                     userConfigurationStore["PLAYTIME_ACTIVITIES"] = playTimeActivities if len(playTimeActivities) > 0 else dbus.Array(signature="aas")
@@ -261,6 +265,8 @@ class timekprUserConfigurationProcessor(object):
                     userConfigurationStore["PLAYTIME_LEFT_DAY"] = self.calculatePlayTimeAvailableFromSavedConfiguration()
                     # PlayTime spent
                     userConfigurationStore["PLAYTIME_SPENT_DAY"] = self._timekprUserControl.getUserPlayTimeSpentDay()
+                    # PlayTime spent week
+                    userConfigurationStore["PLAYTIME_SPENT_WEEK"] = self._timekprUserControl.getUserPlayTimeSpentWeek()
 
         # result
         return result, message, userConfigurationStore
@@ -978,6 +984,48 @@ class timekprUserConfigurationProcessor(object):
                 # result
                 result = -1
                 message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_PT_DAYLIMITS_INVALID_SET") % (self._userName)
+
+            # if we are still fine
+            if result == 0:
+                # save config
+                self._timekprUserConfig.saveUserConfiguration()
+
+        # result
+        return result, message
+
+    def checkAndSetPlayTimeLimitForWeek(self, pPlayTimeLimitWeek):
+        """Validate and set up new PlayTime timelimit for week for the user"""
+        # check if we have this user
+        result, message = self.loadAndCheckUserConfiguration()
+
+        # if we are still fine
+        if result != 0:
+            # result
+            pass
+        # if we have no limit
+        elif pPlayTimeLimitWeek is None:
+            # result
+            result = -1
+            message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_NONE") % (self._userName)
+        else:
+            # parse config
+            try:
+                # verification
+                playTimeWeekLimit = max(min(int(pPlayTimeLimitWeek), cons.TK_PLAYTIME_LIMIT_PER_WEEK), 0)
+            except Exception:
+                # result
+                result = -1
+                message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_INVALID") % (self._userName)
+
+        # if all is correct, we update the configuration
+        if result == 0:
+            # set up config
+            try:
+                self._timekprUserConfig.setUserPlayTimeWeekLimit(playTimeWeekLimit)
+            except Exception:
+                # result
+                result = -1
+                message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_INVALID_SET") % (self._userName)
 
             # if we are still fine
             if result == 0:

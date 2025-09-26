@@ -766,6 +766,9 @@ class timekprUserConfig(object):
             param = "PLAYTIME_LIMITS_PER_WEEKDAYS"
             resultValue, self._timekprUserConfig[param] = _readAndNormalizeValue(self._timekprUserConfigParser.get, section, param, pDefaultValue=cons.TK_PLAYTIME_LIMITS_PER_WEEKDAYS, pCheckValue=None, pOverallSuccess=resultValue)
             self._timekprUserConfig[param] = _cleanupValue(self._timekprUserConfig[param])
+            # read
+            param = "PLAYTIME_LIMIT_PER_WEEK"
+            resultValue, self._timekprUserConfig[param] = _readAndNormalizeValue(self._timekprUserConfigParser.getint, section, param, pDefaultValue=cons.TK_PLAYTIME_LIMIT_PER_WEEK, pCheckValue=None, pOverallSuccess=resultValue)
             # read activities
             self._timekprUserConfig["PLAYTIME_ACTIVITIES"] = []
             appCfgKeys = [rParam[0] for rParam in self._timekprUserConfigParser.items(section) if "PLAYTIME_ACTIVITY_" in rParam[0]] if self._timekprUserConfigParser.has_section(section) else []
@@ -887,6 +890,10 @@ class timekprUserConfig(object):
         self._timekprUserConfigParser.set(section, "# how much PlayTime is allowed per allowed days (number of values must match the number of values for option PLAYTIME_ALLOWED_WEEKDAYS)")
         self._timekprUserConfigParser.set(section, "%s" % (param), self._timekprUserConfig[param] if pReuseValues else cons.TK_PLAYTIME_LIMITS_PER_WEEKDAYS)
         # set up param
+        param = "PLAYTIME_LIMIT_PER_WEEK"
+        self._timekprUserConfigParser.set(section, "# how much PlayTime is allowed per week in seconds")
+        self._timekprUserConfigParser.set(section, "%s" % (param), str(self._timekprUserConfig[param]) if pReuseValues else str(cons.TK_PLAYTIME_LIMIT_PER_WEEK))
+        # set up param
         self._timekprUserConfigParser.set(section, "# this defines which activities / processes are monitored, pattern: PLAYTIME_ACTIVITY_NNN = PROCESS_MASK[DESCRIPTION],")
         self._timekprUserConfigParser.set(section, "#   where NNN is number left padded with 0 (keys must be unique and ordered), optionally it's possible to add user")
         self._timekprUserConfigParser.set(section, "#   friendly description in [] brackets. Process mask supports regexp, except symbols [], please be careful entering it!")
@@ -960,6 +967,9 @@ class timekprUserConfig(object):
         # PlayTime limits per weekdays
         param = "PLAYTIME_LIMITS_PER_WEEKDAYS"
         values[param] = str(self._timekprUserConfig[param])
+        # PlayTime limit per week
+        param = "PLAYTIME_LIMIT_PER_WEEK"
+        values[param] = str(self._timekprUserConfig[param])
         # PlayTime activities
         param = "PLAYTIME_ACTIVITIES"
         values[param] = []
@@ -1026,6 +1036,9 @@ class timekprUserConfig(object):
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserConfig[param])))
             # log
             param = "PLAYTIME_LIMITS_PER_WEEKDAYS"
+            log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserConfig[param])))
+            # log
+            param = "PLAYTIME_LIMIT_PER_WEEK"
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserConfig[param])))
             # log activities
             log.log(cons.TK_LOG_LEVEL_INFO, "  PT activities:")
@@ -1136,6 +1149,11 @@ class timekprUserConfig(object):
         # result
         return [int(rVal.strip()) for rVal in self._timekprUserConfig[param].split(";") if rVal != ""]
 
+    def getUserPlayTimeWeekLimit(self):
+        """Get limit per week for PlayTime"""
+        # result
+        return self._timekprUserConfig["PLAYTIME_LIMIT_PER_WEEK"]
+
     def getUserPlayTimeActivities(self):
         """Return PlayTime process / process list"""
         # param
@@ -1237,6 +1255,11 @@ class timekprUserConfig(object):
         # set up weekdays
         self._timekprUserConfig["PLAYTIME_LIMITS_PER_WEEKDAYS"] = ";".join(map(str, pPlayTimeAllowedLimitsPerWeekdays))
 
+    def setUserPlayTimeWeekLimit(self, pPlayTimeWeekLimitSecs):
+        """Set limit per week for PlayTime"""
+        # result
+        self._timekprUserConfig["PLAYTIME_LIMIT_PER_WEEK"] = int(pPlayTimeWeekLimitSecs)
+
     def setUserPlayTimeAcitivityList(self, pPlayTimeActivityList):
         """Set PlayTime process / process list"""
         # def
@@ -1318,6 +1341,9 @@ class timekprUserControl(object):
             # read
             param = "PLAYTIME_SPENT_DAY"
             resultValue, self._timekprUserControl[param] = _readAndNormalizeValue(self._timekprUserControlParser.getint, section, param, pDefaultValue=0, pCheckValue=cons.TK_LIMIT_PER_DAY, pOverallSuccess=resultValue)
+            # read
+            param = "PLAYTIME_SPENT_WEEK"
+            resultValue, self._timekprUserControl[param] = _readAndNormalizeValue(self._timekprUserControlParser.getint, section, param, pDefaultValue=0, pCheckValue=cons.TK_PLAYTIME_LIMIT_PER_WEEK, pOverallSuccess=resultValue)
 
             # if we could not read some values, save what we could + defaults
             if not resultValue:
@@ -1375,6 +1401,9 @@ class timekprUserControl(object):
         param = "PLAYTIME_SPENT_DAY"
         self._timekprUserControlParser.set(section, "# total PlayTime spent for this day")
         self._timekprUserControlParser.set(section, "%s" % (param), str(self._timekprUserControl[param]) if pReuseValues else "0")
+        param = "PLAYTIME_SPENT_WEEK"
+        self._timekprUserControlParser.set(section, "# total PlayTime spent for this week")
+        self._timekprUserControlParser.set(section, "%s" % (param), str(self._timekprUserControl[param]) if pReuseValues else "0")
 
         # save the file
         with open(self._configFile, "w") as fp:
@@ -1413,6 +1442,9 @@ class timekprUserControl(object):
         # PlayTime spent day
         param = "PLAYTIME_SPENT_DAY"
         values[param] = str(int(self._timekprUserControl[param]))
+        # PlayTime spent week
+        param = "PLAYTIME_SPENT_WEEK"
+        values[param] = str(int(self._timekprUserControl[param]))
 
         # edit control file (using alternate method because configparser looses comments in the process)
         _saveConfigFile(self._configFile, values)
@@ -1446,6 +1478,9 @@ class timekprUserControl(object):
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
             # log
             param = "PLAYTIME_SPENT_DAY"
+            log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
+            # log
+            param = "PLAYTIME_SPENT_WEEK"
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
         # fail
         except Exception:
@@ -1503,6 +1538,11 @@ class timekprUserControl(object):
         # result
         return self._timekprUserControl["PLAYTIME_SPENT_DAY"]
 
+    def getUserPlayTimeSpentWeek(self):
+        """Get PlayTime spent for week"""
+        # result
+        return self._timekprUserControl["PLAYTIME_SPENT_WEEK"]
+
     def getUserControlLastModified(self):
         """Get last file modification time for user"""
         # result
@@ -1542,6 +1582,11 @@ class timekprUserControl(object):
         """Set PlayTime spent for day (including bonues)"""
         # result
         self._timekprUserControl["PLAYTIME_SPENT_DAY"] = pTimeSpent
+
+    def setUserPlayTimeSpentWeek(self, pTimeSpent):
+        """Set PlayTime spent for week"""
+        # result
+        self._timekprUserControl["PLAYTIME_SPENT_WEEK"] = pTimeSpent
 
 class timekprClientConfig(object):
     """Class will hold and provide config management for user"""

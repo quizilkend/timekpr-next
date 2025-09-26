@@ -517,6 +517,30 @@ class timekprAdminConnector(object):
         # result
         return result, message
 
+    def setPlayTimeLimitForWeek(self, pUserName, pPlayTimeLimitWeek):
+        """Set PlayTime limit for week for the user"""
+        # initial values
+        result, message = self.initReturnCodes(pInit=True, pCall=False)
+
+        # if we have end-point
+        if self._timekprUserAdminDbusInterface is not None:
+            # defaults
+            result, message = self.initReturnCodes(pInit=False, pCall=True)
+
+            # notify through dbus
+            try:
+                # call dbus method
+                result, message = self._timekprUserAdminDbusInterface.setPlayTimeLimitForWeek(pUserName, pPlayTimeLimitWeek)
+            except Exception as ex:
+                # exception
+                result, message = self.formatException(str(ex), __name__, self.setPlayTimeLimitForWeek.__name__)
+
+                # we cannot send notif through dbus, we need to reschedule connecton
+                self.initTimekprConnection(False, True)
+
+        # result
+        return result, message
+
     def setPlayTimeActivities(self, pUserName, pPlayTimeActivities):
         """Set PlayTime limits for the allowed days for the user"""
         # initial values

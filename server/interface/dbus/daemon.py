@@ -1012,6 +1012,31 @@ class timekprDaemon(dbus.service.Object):
         # result
         return result, message
 
+    @dbus.service.method(cons.TK_DBUS_USER_ADMIN_INTERFACE, in_signature="si", out_signature="is")
+    def setPlayTimeLimitForWeek(self, pUserName, pPlayTimeLimitWeek):
+        """Set up new PlayTime timelimit for week for the user"""
+        try:
+            # check the user and it's configuration
+            userConfigProcessor = timekprUserConfigurationProcessor(pUserName, self._timekprConfig)
+
+            # load config
+            result, message = userConfigProcessor.checkAndSetPlayTimeLimitForWeek(pPlayTimeLimitWeek)
+
+            # check if we have this user
+            if pUserName in self._timekprUserList:
+                # inform the user immediately
+                self._timekprUserList[pUserName].adjustLimitsFromConfig(False)
+        except Exception as unexpectedException:
+            # logging
+            log.log(cons.TK_LOG_LEVEL_INFO, "Unexpected ERROR (%s): %s" % (misc.whoami(), str(unexpectedException)))
+
+            # result
+            result = -1
+            message = msg.getTranslation("TK_MSG_CONFIG_LOADER_SAVECONFIG_UNEXPECTED_ERROR")
+
+        # result
+        return result, message
+
     @dbus.service.method(cons.TK_DBUS_USER_ADMIN_INTERFACE, in_signature="saas", out_signature="is")
     def setPlayTimeActivities(self, pUserName, pPlayTimeActivities):
         """Set up new PlayTime activities for the user"""
