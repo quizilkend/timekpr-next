@@ -187,8 +187,11 @@ class timekprNotificationArea(object):
         if gui and hasattr(gui, '_timeSpent'):
             # Debug logging to understand what data is available
             log.log(cons.TK_LOG_LEVEL_DEBUG, "Tooltip debug - GUI attributes available:")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpent: {getattr(gui, '_timeSpent', 'NOT_FOUND')}")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpentWeek: {getattr(gui, '_timeSpentWeek', 'NOT_FOUND')}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpentPT: {getattr(gui, '_timeSpentPT', 'NOT_FOUND')}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpentPTWeek: {getattr(gui, '_timeSpentPTWeek', 'NOT_FOUND')}")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeLeftPTWeek: {getattr(gui, '_timeLeftPTWeek', 'NOT_FOUND')}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _limitConfig keys: {list(gui._limitConfig.keys()) if hasattr(gui, '_limitConfig') and gui._limitConfig else 'NOT_FOUND'}")
             if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_PTLMT in gui._limitConfig:
                 log.log(cons.TK_LOG_LEVEL_DEBUG, f"  PlayTime config structure: {gui._limitConfig[cons.TK_CTRL_PTLMT]}")
@@ -197,33 +200,48 @@ class timekprNotificationArea(object):
             daily_spent = format_time_short(getattr(gui, '_timeSpent', None))
             daily_limit = "--:--"
             
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  daily_spent: {daily_spent} (from _timeSpent: {getattr(gui, '_timeSpent', None)})")
+            
             # Get daily limit from configuration
             if hasattr(gui, '_limitConfig') and gui._limitConfig:
                 from datetime import datetime
                 current_day = str(datetime.now().isoweekday())
+                log.log(cons.TK_LOG_LEVEL_DEBUG, f"  current_day: {current_day}")
                 if current_day in gui._limitConfig and cons.TK_CTRL_LIMITD in gui._limitConfig[current_day]:
                     daily_limit_seconds = gui._limitConfig[current_day][cons.TK_CTRL_LIMITD]
+                    log.log(cons.TK_LOG_LEVEL_DEBUG, f"  daily_limit_seconds: {daily_limit_seconds}")
                     if daily_limit_seconds is not None:
                         daily_limit_time = cons.TK_DATETIME_START + timedelta(seconds=daily_limit_seconds)
                         daily_limit = format_time_short(daily_limit_time)
             
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  final daily_limit: {daily_limit}")
             tooltip_lines.append("Daily: %s/%s" % (daily_spent, daily_limit))
             
             # Weekly time info - always show if available
             weekly_spent = format_time_short(getattr(gui, '_timeSpentWeek', None))
             weekly_limit = "--:--"
             
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  weekly_spent: {weekly_spent} (from _timeSpentWeek: {getattr(gui, '_timeSpentWeek', None)})")
+            
             # Get weekly limit from configuration
             if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_LIMITW in gui._limitConfig:
                 weekly_limit_seconds = gui._limitConfig[cons.TK_CTRL_LIMITW].get(cons.TK_CTRL_LIMITW)
+                log.log(cons.TK_LOG_LEVEL_DEBUG, f"  weekly_limit_seconds: {weekly_limit_seconds}")
                 if weekly_limit_seconds is not None:
                     weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=weekly_limit_seconds)
                     weekly_limit = format_time_short(weekly_limit_time)
             
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  final weekly_limit: {weekly_limit}")
             tooltip_lines.append("Weekly: %s/%s" % (weekly_spent, weekly_limit))
             
-            # PlayTime info - Show whenever server sends PlayTime data
-            # Check if we have PlayTime time data from server (this comes from renewLimits)
+            # PlayTime info - Always try to show if any PlayTime data exists
+            # Get PlayTime values first
+            pt_daily_spent = format_time_short(getattr(gui, '_timeSpentPT', None))
+            pt_weekly_spent = format_time_short(getattr(gui, '_timeSpentPTWeek', None))
+            pt_daily_limit = "--:--"
+            pt_weekly_limit = "--:--"
+            
+            # Check if we have ANY PlayTime-related information
             has_pt_data = (hasattr(gui, '_timeSpentPT') and gui._timeSpentPT is not None) or \
                          (hasattr(gui, '_timeSpentPTWeek') and gui._timeSpentPTWeek is not None) or \
                          (hasattr(gui, '_timeLeftPTWeek') and gui._timeLeftPTWeek is not None)
@@ -232,9 +250,12 @@ class timekprNotificationArea(object):
             has_pt_config = (hasattr(gui, '_limitConfig') and gui._limitConfig and 
                            (cons.TK_CTRL_PTTLE in gui._limitConfig or cons.TK_CTRL_PTLMT in gui._limitConfig))
             
+            # Show PlayTime if we have data OR configuration
             show_playtime = has_pt_data or has_pt_config
             
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"Tooltip PlayTime debug:")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_daily_spent: {pt_daily_spent}")  
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_weekly_spent: {pt_weekly_spent}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  has_pt_data: {has_pt_data}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  has_pt_config: {has_pt_config}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  show_playtime: {show_playtime}")
@@ -243,13 +264,6 @@ class timekprNotificationArea(object):
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeLeftPTWeek exists: {hasattr(gui, '_timeLeftPTWeek') and gui._timeLeftPTWeek is not None}")
             
             if show_playtime:
-                pt_daily_spent = format_time_short(getattr(gui, '_timeSpentPT', None))
-                pt_weekly_spent = format_time_short(getattr(gui, '_timeSpentPTWeek', None))
-                pt_daily_limit = "--:--"
-                pt_weekly_limit = "--:--"
-                
-                log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_daily_spent: {pt_daily_spent}")  
-                log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_weekly_spent: {pt_weekly_spent}")
                 
                 # Get PlayTime daily limit from configuration
                 if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_PTLMT in gui._limitConfig:
@@ -282,11 +296,28 @@ class timekprNotificationArea(object):
                         weekly_left_seconds = (pt_weekly_left_obj - cons.TK_DATETIME_START).total_seconds()
                         weekly_limit_seconds = weekly_spent_seconds + weekly_left_seconds
                         
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  weekly_spent_seconds: {weekly_spent_seconds}")
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  weekly_left_seconds: {weekly_left_seconds}")
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  weekly_limit_seconds: {weekly_limit_seconds}")
+                        
                         if weekly_limit_seconds > 0:
                             pt_weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=weekly_limit_seconds)
                             pt_weekly_limit = format_time_short(pt_weekly_limit_time)
+                        else:
+                            # Even if limit is 0, show it as 00:00 instead of --:--
+                            pt_weekly_limit = "00:00"
                         
-                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  calculated weekly limit: {pt_weekly_limit} (from {weekly_spent_seconds}s spent + {weekly_left_seconds}s left)")
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  calculated weekly limit: {pt_weekly_limit}")
+                    else:
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  Cannot calculate weekly limit - missing data")
+                
+                # Override pt_weekly_spent if it shows --:-- but we have data
+                if pt_weekly_spent == "--:--" and hasattr(gui, '_timeSpentPTWeek'):
+                    pt_weekly_spent_obj = getattr(gui, '_timeSpentPTWeek', None)
+                    if pt_weekly_spent_obj is not None:
+                        # Recalculate the spent time formatting
+                        pt_weekly_spent = format_time_short(pt_weekly_spent_obj)
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  recalculated pt_weekly_spent: {pt_weekly_spent}")
                 
                 log.log(cons.TK_LOG_LEVEL_DEBUG, f"  final limits - daily: {pt_daily_limit}, weekly: {pt_weekly_limit}")
                 tooltip_lines.append("Daily PlayTime: %s/%s" % (pt_daily_spent, pt_daily_limit))
