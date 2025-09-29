@@ -225,7 +225,8 @@ class timekprNotificationArea(object):
             # PlayTime info - Show whenever server sends PlayTime data
             # Check if we have PlayTime time data from server (this comes from renewLimits)
             has_pt_data = (hasattr(gui, '_timeSpentPT') and gui._timeSpentPT is not None) or \
-                         (hasattr(gui, '_timeSpentPTWeek') and gui._timeSpentPTWeek is not None)
+                         (hasattr(gui, '_timeSpentPTWeek') and gui._timeSpentPTWeek is not None) or \
+                         (hasattr(gui, '_timeLeftPTWeek') and gui._timeLeftPTWeek is not None)
             
             # Also check if PlayTime is configured
             has_pt_config = (hasattr(gui, '_limitConfig') and gui._limitConfig and 
@@ -237,6 +238,9 @@ class timekprNotificationArea(object):
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  has_pt_data: {has_pt_data}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  has_pt_config: {has_pt_config}")
             log.log(cons.TK_LOG_LEVEL_DEBUG, f"  show_playtime: {show_playtime}")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpentPT exists: {hasattr(gui, '_timeSpentPT') and gui._timeSpentPT is not None}")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeSpentPTWeek exists: {hasattr(gui, '_timeSpentPTWeek') and gui._timeSpentPTWeek is not None}")
+            log.log(cons.TK_LOG_LEVEL_DEBUG, f"  _timeLeftPTWeek exists: {hasattr(gui, '_timeLeftPTWeek') and gui._timeLeftPTWeek is not None}")
             
             if show_playtime:
                 pt_daily_spent = format_time_short(getattr(gui, '_timeSpentPT', None))
@@ -247,7 +251,7 @@ class timekprNotificationArea(object):
                 log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_daily_spent: {pt_daily_spent}")  
                 log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_weekly_spent: {pt_weekly_spent}")
                 
-                # Get PlayTime limits from configuration if available
+                # Get PlayTime daily limit from configuration
                 if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_PTLMT in gui._limitConfig:
                     from datetime import datetime
                     current_day = str(datetime.now().isoweekday())
@@ -263,13 +267,26 @@ class timekprNotificationArea(object):
                                     pt_daily_limit_time = cons.TK_DATETIME_START + timedelta(seconds=day_config[1])
                                     pt_daily_limit = format_time_short(pt_daily_limit_time)
                                 break
+                
+                # Calculate weekly PlayTime limit from spent + left time (since weekly limit isn't in config)
+                if hasattr(gui, '_timeSpentPTWeek') and hasattr(gui, '_timeLeftPTWeek'):
+                    pt_weekly_spent_obj = getattr(gui, '_timeSpentPTWeek', None)
+                    pt_weekly_left_obj = getattr(gui, '_timeLeftPTWeek', None)
+                    
+                    log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_weekly_spent_obj: {pt_weekly_spent_obj}")
+                    log.log(cons.TK_LOG_LEVEL_DEBUG, f"  pt_weekly_left_obj: {pt_weekly_left_obj}")
+                    
+                    if pt_weekly_spent_obj is not None and pt_weekly_left_obj is not None:
+                        # Weekly limit = weekly spent + weekly left
+                        weekly_spent_seconds = (pt_weekly_spent_obj - cons.TK_DATETIME_START).total_seconds()
+                        weekly_left_seconds = (pt_weekly_left_obj - cons.TK_DATETIME_START).total_seconds()
+                        weekly_limit_seconds = weekly_spent_seconds + weekly_left_seconds
                         
-                        # Check for weekly PlayTime limit 
-                        if cons.TK_CTRL_LIMITW in pt_limits:
-                            pt_weekly_limit_seconds = pt_limits[cons.TK_CTRL_LIMITW]
-                            if pt_weekly_limit_seconds is not None and pt_weekly_limit_seconds > 0:
-                                pt_weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=pt_weekly_limit_seconds)
-                                pt_weekly_limit = format_time_short(pt_weekly_limit_time)
+                        if weekly_limit_seconds > 0:
+                            pt_weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=weekly_limit_seconds)
+                            pt_weekly_limit = format_time_short(pt_weekly_limit_time)
+                        
+                        log.log(cons.TK_LOG_LEVEL_DEBUG, f"  calculated weekly limit: {pt_weekly_limit} (from {weekly_spent_seconds}s spent + {weekly_left_seconds}s left)")
                 
                 log.log(cons.TK_LOG_LEVEL_DEBUG, f"  final limits - daily: {pt_daily_limit}, weekly: {pt_weekly_limit}")
                 tooltip_lines.append("Daily PlayTime: %s/%s" % (pt_daily_spent, pt_daily_limit))
