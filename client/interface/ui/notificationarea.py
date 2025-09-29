@@ -134,10 +134,8 @@ class timekprNotificationArea(object):
                     timeLeftStr = "∞"
                     prio = "unlimited"
                 else:
-                    # determine hours and minutes
-                    timeLeftStr = str((self._timeLeftTotal - cons.TK_DATETIME_START).days * 24 + self._timeLeftTotal.hour).rjust(2, "0")
-                    timeLeftStr += ":" + str(self._timeLeftTotal.minute).rjust(2, "0")
-                    timeLeftStr += ((":" + str(self._timeLeftTotal.second).rjust(2, "0")) if self._timekprClientConfig.getClientShowSeconds() else "")
+                    # create detailed tooltip with multiple lines
+                    timeLeftStr = self._formatDetailedTooltip(pTimeLeft, pPlayTimeLeft)
 
                     # notifications and icons only when time has changed
                     if isTimeChanged:
@@ -153,11 +151,6 @@ class timekprNotificationArea(object):
                                 self.notifyUser(cons.TK_MSG_CODE_TIMELEFT, None, prio, pTimeLeft, None)
                             # level this up
                             self._lastUsedPriorityLvl = finLvl
-
-                # determine hours and minutes for PlayTime (if there is such time)
-                if pPlayTimeLeft is not None:
-                    # format final time string
-                    timeLeftStr = "%s / %s" % (timeLeftStr, timeLeftStrPT)
 
                 # now, if priority changes, set up icon as well
                 if isTimeChanged and self._lastUsedPriority != prio:
@@ -175,6 +168,100 @@ class timekprNotificationArea(object):
 
         # return time left and icon (if changed), so implementations can use it
         return timeLeftStr, timekprIcon
+
+    def _formatDetailedTooltip(self, pTimeLeft, pPlayTimeLeft):
+        """Format detailed tooltip with all time information"""
+        tooltip_lines = []
+        
+        # Helper function to format time similar to formatTimeStr with short format
+        def format_time_short(time_obj):
+            if time_obj is None:
+                return "--:--"
+            days = (time_obj - cons.TK_DATETIME_START).days
+            hours = time_obj.hour + (days * 24)
+            minutes = time_obj.minute
+            return "%s:%s" % (str(hours).rjust(2, "0"), str(minutes).rjust(2, "0"))
+        
+        # Get time information from GUI if available
+        gui = self._timekprGUI
+        if gui and hasattr(gui, '_timeSpent'):
+            # Daily time info
+            daily_spent = format_time_short(gui._timeSpent) if hasattr(gui, '_timeSpent') and gui._timeSpent else "--:--"
+            daily_limit = "--:--"  # Will be updated if limit config is available
+            
+            # Get daily limit from configuration
+            if hasattr(gui, '_limitConfig') and gui._limitConfig:
+                from datetime import datetime
+                current_day = str(datetime.now().isoweekday())
+                if current_day in gui._limitConfig and cons.TK_CTRL_LIMITD in gui._limitConfig[current_day]:
+                    daily_limit_seconds = gui._limitConfig[current_day][cons.TK_CTRL_LIMITD]
+                    if daily_limit_seconds is not None:
+                        daily_limit_time = cons.TK_DATETIME_START + timedelta(seconds=daily_limit_seconds)
+                        daily_limit = format_time_short(daily_limit_time)
+            
+            tooltip_lines.append("Daily: %s/%s" % (daily_spent, daily_limit))
+            
+            # Weekly time info  
+            weekly_spent = format_time_short(gui._timeSpentWeek) if hasattr(gui, '_timeSpentWeek') and gui._timeSpentWeek else "--:--"
+            weekly_limit = "--:--"
+            
+            # Get weekly limit from configuration
+            if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_LIMITW in gui._limitConfig:
+                weekly_limit_seconds = gui._limitConfig[cons.TK_CTRL_LIMITW][cons.TK_CTRL_LIMITW]
+                if weekly_limit_seconds is not None:
+                    weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=weekly_limit_seconds)
+                    weekly_limit = format_time_short(weekly_limit_time)
+            
+            tooltip_lines.append("Weekly: %s/%s" % (weekly_spent, weekly_limit))
+            
+            # PlayTime daily info (if available)
+            if hasattr(gui, '_timeSpentPT') and gui._timeSpentPT:
+                pt_daily_spent = format_time_short(gui._timeSpentPT)
+                pt_daily_limit = "--:--"
+                
+                # Get PlayTime daily limit from configuration  
+                if hasattr(gui, '_limitConfig') and gui._limitConfig:
+                    from datetime import datetime
+                    current_day = str(datetime.now().isoweekday())
+                    if cons.TK_CTRL_PTLMT in gui._limitConfig and current_day in gui._limitConfig[cons.TK_CTRL_PTLMT]:
+                        pt_limit_day = gui._limitConfig[cons.TK_CTRL_PTLMT][current_day]
+                        if pt_limit_day is not None and cons.TK_CTRL_LIMITD in pt_limit_day:
+                            pt_daily_limit_seconds = pt_limit_day[cons.TK_CTRL_LIMITD]
+                            if pt_daily_limit_seconds is not None:
+                                pt_daily_limit_time = cons.TK_DATETIME_START + timedelta(seconds=pt_daily_limit_seconds)
+                                pt_daily_limit = format_time_short(pt_daily_limit_time)
+                
+                tooltip_lines.append("Daily PlayTime: %s/%s" % (pt_daily_spent, pt_daily_limit))
+                
+                # PlayTime weekly info
+                pt_weekly_spent = format_time_short(gui._timeSpentPTWeek) if hasattr(gui, '_timeSpentPTWeek') and gui._timeSpentPTWeek else "--:--"
+                pt_weekly_limit = "--:--"
+                
+                # Weekly PlayTime limit from configuration
+                if hasattr(gui, '_limitConfig') and gui._limitConfig and cons.TK_CTRL_PTLMT in gui._limitConfig:
+                    if cons.TK_CTRL_LIMITW in gui._limitConfig[cons.TK_CTRL_PTLMT]:
+                        pt_weekly_limit_seconds = gui._limitConfig[cons.TK_CTRL_PTLMT][cons.TK_CTRL_LIMITW]
+                        if pt_weekly_limit_seconds is not None:
+                            pt_weekly_limit_time = cons.TK_DATETIME_START + timedelta(seconds=pt_weekly_limit_seconds)
+                            pt_weekly_limit = format_time_short(pt_weekly_limit_time)
+                
+                tooltip_lines.append("Weekly PlayTime: %s/%s" % (pt_weekly_spent, pt_weekly_limit))
+        
+        # Fallback to original simple format if no detailed info available
+        if not tooltip_lines:
+            simple_time = str((pTimeLeft - cons.TK_DATETIME_START).days * 24 + pTimeLeft.hour).rjust(2, "0")
+            simple_time += ":" + str(pTimeLeft.minute).rjust(2, "0")
+            simple_time += ((":" + str(pTimeLeft.second).rjust(2, "0")) if self._timekprClientConfig.getClientShowSeconds() else "")
+            
+            if pPlayTimeLeft is not None:
+                timeLeftPT = min(pPlayTimeLeft, pTimeLeft)
+                timeLeftStrPT = str((timeLeftPT - cons.TK_DATETIME_START).days * 24 + timeLeftPT.hour).rjust(2, "0")
+                timeLeftStrPT += ":" + str(timeLeftPT.minute).rjust(2, "0")
+                timeLeftStrPT += ((":" + str(timeLeftPT.second).rjust(2, "0")) if self._timekprClientConfig.getClientShowSeconds() else "")
+                return "%s / %s" % (simple_time, timeLeftStrPT)
+            return simple_time
+        
+        return "\n".join(tooltip_lines)
 
     def processPlayTimeNotifications(self, pTimeLimits):
         """Process PlayTime notifications (if there is PT info in limits)"""

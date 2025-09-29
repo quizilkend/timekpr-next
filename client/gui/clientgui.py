@@ -397,6 +397,8 @@ class timekprGUI(object):
             self._timeUnaccountedIntervalsFlagPT = bool(pTimeInformation[cons.TK_CTRL_PTAUH]) if cons.TK_CTRL_PTAUH in pTimeInformation else False
             self._timeSpentPT = cons.TK_DATETIME_START + timedelta(seconds=pTimeInformation[cons.TK_CTRL_PTSPD]) if cons.TK_CTRL_PTSPD in pTimeInformation else None
             self._timeLeftPT = cons.TK_DATETIME_START + timedelta(seconds=pTimeInformation[cons.TK_CTRL_PTLPD]) if cons.TK_CTRL_PTLPD in pTimeInformation else None
+            self._timeSpentPTWeek = cons.TK_DATETIME_START + timedelta(seconds=pTimeInformation[cons.TK_CTRL_PTSPW]) if cons.TK_CTRL_PTSPW in pTimeInformation else None
+            self._timeLeftPTWeek = cons.TK_DATETIME_START + timedelta(seconds=pTimeInformation[cons.TK_CTRL_PTLPW]) if cons.TK_CTRL_PTLPW in pTimeInformation else None
             self._timePTActivityCntStr = str(pTimeInformation[cons.TK_CTRL_PTLSTC] if cons.TK_CTRL_PTLSTC in pTimeInformation else 0)
 
         # calculate strings to show (and show only those, which have data)
