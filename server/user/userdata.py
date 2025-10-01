@@ -424,7 +424,7 @@ class timekprUser(object):
             # if PlayTime is enabled and active, we need to account spent for those seconds (if not active, it will be left as 0)
             self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = spentHour if (isPTEna and isPTAct) else 0
         else:
-            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = self._timekprUserControl.getUserPlayTimeSpentWeek()
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = self._timekprUserControl.getUserPlayTimeSpentWeek() + timeSpentBeforeReloadPT
         # update last file mod time
         self._timekprUserData[cons.TK_CTRL_LMOD] = self._timekprUserControl.getUserControlLastModified()
 
