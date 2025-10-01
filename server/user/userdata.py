@@ -418,7 +418,13 @@ class timekprUser(object):
         # account PlayTime as well
         self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTBD], self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTD] = _getPlayTimeBalanceSpent(timeSpentBeforeReloadPT)
         # set PlayTime weekly spent
-        self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = 0 if weekChanged else self._timekprUserControl.getUserPlayTimeSpentWeek()
+        if weekChanged:
+            # get PT status to determine if we need to account for current hour
+            isPTEna, isPTAcc, isPTAct = self._isPlayTimeEnabledAccountedActive(pSilent=True, pCheckActive=True)
+            # if PlayTime is enabled and active, we need to account spent for those seconds (if not active, it will be left as 0)
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = spentHour if (isPTEna and isPTAct) else 0
+        else:
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = self._timekprUserControl.getUserPlayTimeSpentWeek()
         # update last file mod time
         self._timekprUserData[cons.TK_CTRL_LMOD] = self._timekprUserControl.getUserControlLastModified()
 
