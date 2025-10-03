@@ -668,8 +668,10 @@ class timekprUser(object):
         timeLeftPTDaily = self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_LEFTD]
         # get time left for this week
         timeLeftPTWeekly = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LEFTW]
-        # effective time left is the minimum of daily and weekly limits
-        timeLeftPT = min(timeLeftPTDaily, timeLeftPTWeekly) if timeLeftPTWeekly >= 0 else timeLeftPTDaily
+        # get weekly limit to check if it's configured
+        weeklyLimit = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LIMITW]
+        # effective time left is the minimum of daily and weekly limits (if weekly limit is configured)
+        timeLeftPT = min(timeLeftPTDaily, timeLeftPTWeekly) if weeklyLimit > 0 else timeLeftPTDaily
         # get PT status
         isPTEnabled, isPTAccounted, isPTActive = self._isPlayTimeEnabledAccountedActive(pCheckActive=pCheckActive)
         # if PT is enabled, log the information
