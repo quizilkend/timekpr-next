@@ -1495,8 +1495,8 @@ class timekprUserControl(object):
         # ## validations ##
         # month changed
         monthChanged = (checkDate.year != validationDate.year or checkDate.month != validationDate.month)
-        # week changed
-        weekChanged = (checkDate.isocalendar()[1] != validationDate.isocalendar()[1] or (checkDate.isocalendar()[1] == validationDate.isocalendar()[1] and abs((checkDate - validationDate).days) > 7))
+        # week changed (check both ISO year and week number to handle year boundaries correctly)
+        weekChanged = (checkDate.isocalendar()[0] != validationDate.isocalendar()[0] or checkDate.isocalendar()[1] != validationDate.isocalendar()[1])
         # day changed
         dayChanged = (checkDate != validationDate)
 
