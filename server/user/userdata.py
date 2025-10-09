@@ -422,7 +422,11 @@ class timekprUser(object):
             # get PT status to determine if we need to account for current hour
             isPTEna, isPTAcc, isPTAct = self._isPlayTimeEnabledAccountedActive(pSilent=True, pCheckActive=True)
             # if PlayTime is enabled and active, we need to account spent for those seconds (if not active, it will be left as 0)
+            prevWeek = self._timekprUserControl.getUserPlayTimeSpentWeek()
             self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = spentHour if (isPTEna and isPTAct) else 0
+            # DEBUG LOGGING
+            log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK SET in adjustTimeSpentFromControl (weekChanged): user=%s, previous value=%s, new value=%s, isPTAct=%s" % 
+                    (self.getUserName(), prevWeek, self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW], isPTAct))
         else:
             self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = self._timekprUserControl.getUserPlayTimeSpentWeek() + timeSpentBeforeReloadPT
         # update last file mod time
@@ -549,7 +553,11 @@ class timekprUser(object):
                 # set spent for week as not initialized for this week, so new limits will apply properly
                 self._timekprUserData[cons.TK_CTRL_SPENTW] = 0
                 # reset PlayTime spent for this week
+                prevWeek = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]
                 self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = 0
+                # DEBUG LOGGING
+                log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK RESET TO 0 in adjustTimeSpentActual (weekChanged inside dayChanged): user=%s, previous value=%s" % 
+                        (self.getUserName(), prevWeek))
             ### handle month change
             if monthChanged:
                 # set spent for month as not initialized for this month, so new limits will apply properly
@@ -715,6 +723,9 @@ class timekprUser(object):
         self._timekprUserControl.setUserPlayTimeSpentBalance(self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTBD])
         self._timekprUserControl.setUserPlayTimeSpentDay(self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTD])
         self._timekprUserControl.setUserPlayTimeSpentWeek(self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW])
+        # DEBUG LOGGING
+        log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG SAVING PLAYTIME_SPENT_WEEK in saveSpent: user=%s, value=%s" % 
+                (self.getUserName(), self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]))
         self._timekprUserControl.saveControl()
         # renew last modified
         self._timekprUserData[cons.TK_CTRL_LMOD] = self._timekprUserControl.getUserControlLastModified()

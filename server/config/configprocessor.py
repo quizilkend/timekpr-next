@@ -69,6 +69,10 @@ class timekprUserConfigurationProcessor(object):
         # control date components changed
         dayChanged, weekChanged, monthChanged = self._timekprUserControl.getUserDateComponentChanges(pCheckDate)
 
+        # DEBUG LOGGING FOR PLAYTIME WEEK COUNTER RESET ISSUE
+        log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG calculateAdjustedDatesForUserControl: user=%s, dayChanged=%s, weekChanged=%s, monthChanged=%s, checkDate=%s, lastChecked=%s" % 
+                (self._userName, dayChanged, weekChanged, monthChanged, pCheckDate, self._timekprUserControl.getUserLastChecked()))
+
         # set defaults in case day changed
         if dayChanged:
             # balance and day must be changed
@@ -79,7 +83,10 @@ class timekprUserConfigurationProcessor(object):
             # balance and day must be changed
             self._timekprUserControl.setUserTimeSpentWeek(0)
             # PlayTime week reset
+            prevWeek = self._timekprUserControl.getUserPlayTimeSpentWeek()
             self._timekprUserControl.setUserPlayTimeSpentWeek(0)
+            # DEBUG LOGGING
+            log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK RESET TO 0 in calculateAdjustedDatesForUserControl: user=%s, previous value=%s" % (self._userName, prevWeek))
         # set defaults in case month changed
         if monthChanged:
             # balance and day must be changed
