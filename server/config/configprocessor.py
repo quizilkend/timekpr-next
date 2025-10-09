@@ -74,6 +74,9 @@ class timekprUserConfigurationProcessor(object):
             # balance and day must be changed
             self._timekprUserControl.setUserTimeSpentDay(0)
             self._timekprUserControl.setUserTimeSpentBalance(0)
+            # PlayTime balance and day must be changed
+            self._timekprUserControl.setUserPlayTimeSpentBalance(0)
+            self._timekprUserControl.setUserPlayTimeSpentDay(0)
         # set defaults in case week changed
         if weekChanged:
             # balance and day must be changed
