@@ -1445,6 +1445,12 @@ class timekprUserControl(object):
         # PlayTime spent week
         param = "PLAYTIME_SPENT_WEEK"
         values[param] = str(int(self._timekprUserControl[param]))
+        
+        # DEBUG LOGGING
+        import traceback
+        stack = ''.join(traceback.format_stack()[-4:-1])  # Get last 3 stack frames
+        log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG saveControl: user=%s, PLAYTIME_SPENT_WEEK=%s, LAST_CHECKED=%s, caller:\n%s" % 
+                (self._userName, values["PLAYTIME_SPENT_WEEK"], values["LAST_CHECKED"], stack))
 
         # edit control file (using alternate method because configparser looses comments in the process)
         _saveConfigFile(self._configFile, values)
