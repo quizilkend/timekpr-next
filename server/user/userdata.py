@@ -156,7 +156,11 @@ class timekprUser(object):
         self._timekprUserData[cons.TK_CTRL_LEFTM] = self._timekprUserData[cons.TK_CTRL_LIMITM] - self._timekprUserData[cons.TK_CTRL_SPENTM]
         # account PlayTime for this day
         self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_LEFTD] = self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_LIMITD] - self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTBD]
-        # calculate time left for PlayTime per week
+        # calculate time left for PlayTime per week (ensure values are initialized)
+        if self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LIMITW] is None:
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LIMITW] = 0
+        if self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] is None:
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = 0
         self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LEFTW] = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LIMITW] - self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]
 
         # continous time
@@ -372,6 +376,9 @@ class timekprUser(object):
             # result
             return bal, spent
 
+        # read from config
+        self._timekprUserControl.loadUserControl()
+        
         # in case we force reload the file, we need to account the time which was spent before reload too
         if pPreserveSpent:
             # get time spent which was calculated
@@ -381,9 +388,6 @@ class timekprUser(object):
         else:
             # no additional time
             timeSpentBeforeReload = timeSpentBeforeReloadPT = 0
-
-        # read from config
-        self._timekprUserControl.loadUserControl()
         # log
         self._timekprUserControl.logUserControl()
 
