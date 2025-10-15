@@ -1351,6 +1351,15 @@ class timekprUserControl(object):
                 log.log(cons.TK_LOG_LEVEL_INFO, "WARNING: some values in user control file (%s) could not be read or new configuration option was introduced, valid values and defaults are used / saved instead" % (self._configFile))
                 # save what we could
                 self.initUserControl(True)
+            else:
+                # Even if all values were read successfully, check if PLAYTIME section exists and has PLAYTIME_SPENT_WEEK
+                # This handles the case where the field was added incorrectly (e.g., outside of any section)
+                section = "%s.%s" % (self._userName, "PLAYTIME")
+                if not self._timekprUserControlParser.has_section(section) or not self._timekprUserControlParser.has_option(section, "PLAYTIME_SPENT_WEEK"):
+                    # logging
+                    log.log(cons.TK_LOG_LEVEL_INFO, "WARNING: PLAYTIME_SPENT_WEEK field missing or in wrong section in user control file (%s), recreating file" % (self._configFile))
+                    # recreate the file with proper structure
+                    self.initUserControl(True)
 
         # clear parser
         self._timekprUserControlParser.clear()
