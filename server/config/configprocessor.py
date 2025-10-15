@@ -987,6 +987,48 @@ class timekprUserConfigurationProcessor(object):
         # result
         return result, message
 
+    def checkAndSetPlayTimeLimitForWeek(self, pPlayTimeLimitWeek):
+        """Validate and set up new PlayTime timelimit for week for the user"""
+        # check if we have this user
+        result, message = self.loadAndCheckUserConfiguration()
+
+        # if we are still fine
+        if result != 0:
+            # result
+            pass
+        # if we have no limit
+        elif pPlayTimeLimitWeek is None:
+            # result
+            result = -1
+            message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_NONE") % (self._userName)
+        else:
+            # parse config
+            try:
+                # verification
+                playTimeWeekLimit = max(min(int(pPlayTimeLimitWeek), cons.TK_LIMIT_PER_WEEK), 0)
+            except Exception:
+                # result
+                result = -1
+                message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_INVALID") % (self._userName)
+
+        # if all is correct, we update the configuration
+        if result == 0:
+            # set up config
+            try:
+                self._timekprUserConfig.setUserPlayTimeWeekLimit(playTimeWeekLimit)
+            except Exception:
+                # result
+                result = -1
+                message = msg.getTranslation("TK_MSG_USER_ADMIN_CHK_WEEKLYALLOWANCE_INVALID_SET") % (self._userName)
+
+            # if we are still fine
+            if result == 0:
+                # save config
+                self._timekprUserConfig.saveUserConfiguration()
+
+        # result
+        return result, message
+
     def checkAndSetPlayTimeActivities(self, pPlayTimeActivities):
         """Validate and set up allowed PlayTime activities for the user"""
         """Validate allowed PlayTime activities for the user

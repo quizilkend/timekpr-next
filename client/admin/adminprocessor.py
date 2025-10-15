@@ -286,6 +286,15 @@ class timekprAdminClient(object):
             else:
                 # set days
                 self.processSetPlayTimeLimits(args[paramIdx+1], args[paramIdx+2])
+        # this sets PlayTime limit per week for the user
+        elif adminCmd == "--setplaytimelimitweek":
+            # check param len
+            if paramLen != paramIdx + 3:
+                # fail
+                adminCmdIncorrect = True
+            else:
+                # set limit
+                self.processSetPlayTimeLimitWeek(args[paramIdx+1], args[paramIdx+2])
         # this sets PlayTime activities for the user
         elif adminCmd == "--setplaytimeactivities":
             # check param len
@@ -748,6 +757,30 @@ class timekprAdminClient(object):
         if result == 0:
             # invoke
             result, message = self._timekprAdminConnector.setPlayTimeLimitsForDays(pUserName, dayLimits)
+
+        # process
+        if result != 0:
+            # log error
+            log.consoleOut(message)
+
+    def processSetPlayTimeLimitWeek(self, pUserName, pPlayTimeWeekLimit):
+        """Process PlayTime limit for week"""
+        # defaults
+        result = 0
+
+        # week limit
+        try:
+            # try to parse parameter
+            weekLimit = int(pPlayTimeWeekLimit)
+        except Exception as ex:
+            # fail
+            result = -1
+            message = msg.getTranslation("TK_MSG_PARSE_ERROR") % (str(ex))
+
+        # preprocess successful
+        if result == 0:
+            # invoke
+            result, message = self._timekprAdminConnector.setPlayTimeLimitForWeek(pUserName, weekLimit)
 
         # process
         if result != 0:

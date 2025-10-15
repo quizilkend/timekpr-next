@@ -48,6 +48,7 @@ def initMessages():
     _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMEUNACCOUNTEDINTARVALSFLAG"] = {"s": _("==> set whether PlayTime activities are allowed during unaccounted (\"∞\") intervals, example")}
     _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMEALLOWEDDAYS"] = {"s": _("==> set allowed days for PlayTime activities, example")}
     _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMELIMITS"] = {"s": _("==> set PlayTime limits for all allowed days, the number of values must not exceed the allowed PlayTime allowed days for the user, example")}
+    _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMELIMITWEEK"] = {"s": _("==> set PlayTime limit for the week in seconds, example")}
     _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMEACTIVITIES"] = {"s": _("==> set PlayTime activity process masks, for which the time is accounted, example")}
     _messages["TK_MSG_USER_ADMIN_CMD_SETPLAYTIMELEFT"] = {"s": _("==> set PlayTime left for the user at the current moment of time: \"+\" (add time), \"-\" (subtract time), \"=\" (set exact time available), example (add one hour)")}
 
