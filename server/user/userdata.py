@@ -459,7 +459,9 @@ class timekprUser(object):
             else:
                 # adjust time spent hour
                 self._timekprUserData[pDay][pHOD][cons.TK_CTRL_SPENTH] += pSecs
-                # adjust time spent day balance
+                # adjust time spent day balance (ensure initialized)
+                if self._timekprUserData[pDay][cons.TK_CTRL_SPENTBD] is None:
+                    self._timekprUserData[pDay][cons.TK_CTRL_SPENTBD] = 0
                 self._timekprUserData[pDay][cons.TK_CTRL_SPENTBD] += pSecs
                 # adjust time spent day
                 self._timekprUserData[cons.TK_CTRL_SPENTD] += pSecs
