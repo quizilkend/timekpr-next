@@ -428,7 +428,11 @@ class timekprUser(object):
             log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK SET in adjustTimeSpentFromControl (weekChanged): user=%s, previous value=%s, new value=%s, isPTAct=%s" % 
                     (self.getUserName(), prevWeek, self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW], isPTAct))
         else:
-            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = self._timekprUserControl.getUserPlayTimeSpentWeek() + timeSpentBeforeReloadPT
+            loadedWeek = self._timekprUserControl.getUserPlayTimeSpentWeek()
+            self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] = loadedWeek + timeSpentBeforeReloadPT
+            # DEBUG LOGGING
+            log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK loaded in adjustTimeSpentFromControl (weekChanged=False): user=%s, loaded=%s, timeSpentBeforeReloadPT=%s, new=%s" % 
+                    (self.getUserName(), loadedWeek, timeSpentBeforeReloadPT, self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]))
         # update last file mod time
         self._timekprUserData[cons.TK_CTRL_LMOD] = self._timekprUserControl.getUserControlLastModified()
 
@@ -576,7 +580,12 @@ class timekprUser(object):
             # adjust PlayTime spent this day
             self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_SPENTD] += timeSpent
             # adjust PlayTime spent this week
+            prevWeekVal = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]
             self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW] += timeSpent
+            # DEBUG LOGGING
+            if prevWeekVal is not None and timeSpent > 0:
+                log.log(cons.TK_LOG_LEVEL_INFO, "DEBUG PLAYTIME_SPENT_WEEK incremented in adjustTimeSpentActual: user=%s, prev=%s, timeSpent=%s, new=%s" % 
+                        (self.getUserName(), prevWeekVal, timeSpent, self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]))
 
         # logging section
         if dayChanged:
