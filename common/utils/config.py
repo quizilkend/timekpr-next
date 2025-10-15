@@ -34,17 +34,10 @@ def _saveConfigFile(pConfigFile, pKeyValuePairs):
     with open(pConfigFile + cons.TK_BACK_EXT, "r") as srcFile, open(pConfigFile, "w") as dstFile:
         # destination file
         dstLines = []
-        # track which keys were written
-        writtenKeys = set()
-        # track the last section we saw
-        currentSection = None
         # read line and do manipulations
         for rLine in srcFile:
             # def line
             line = rLine
-            # track section headers
-            if rLine.strip().startswith("["):
-                currentSection = rLine.strip()
             # if line matches parameter pattern, we look up for that key in our value list
             if RE_KEYFINDER.match(rLine):
                 # check whether we can find the value for it
@@ -55,8 +48,6 @@ def _saveConfigFile(pConfigFile, pKeyValuePairs):
                     if pKeyValuePairs[key] is not None:
                         # now get the value
                         dstLines.append("%s = %s\n" % (key, pKeyValuePairs[key]))
-                        # mark as written
-                        writtenKeys.add(key)
                         # do not add original line
                         line = None
                 else:
@@ -74,8 +65,6 @@ def _saveConfigFile(pConfigFile, pKeyValuePairs):
                     for rVal in pKeyValuePairs[key]:
                         # now get the value
                         dstLines.append("%s\n" % (rVal))
-                    # mark as written
-                    writtenKeys.add(key)
                 # do not add original line
                 line = None
 
@@ -83,12 +72,6 @@ def _saveConfigFile(pConfigFile, pKeyValuePairs):
             if line is not None:
                 # add line
                 dstLines.append(line)
-
-        # append any keys that weren't in the source file (new fields)
-        for key, value in pKeyValuePairs.items():
-            if key not in writtenKeys and value is not None:
-                # append the new key-value pair
-                dstLines.append("%s = %s\n" % (key, value))
 
         # save config lines back to file
         dstFile.writelines(dstLines)
