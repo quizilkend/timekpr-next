@@ -206,6 +206,8 @@ TK_CTRL_PTTLE = "PTTLE"      # PlayTime enabled
 TK_CTRL_PTCNT = "PTCNT"      # PlayTime counters
 TK_CTRL_PTSPD = "PTSPD"      # time spent for PlayTime
 TK_CTRL_PTLPD = "PTLPD"      # time left for PlayTime
+TK_CTRL_PTSPW = "PTSPW"      # time spent for PlayTime this week
+TK_CTRL_PTLPW = "PTLPW"      # time left for PlayTime this week
 TK_CTRL_PTTLO = "PTTLO"      # PlayTime limit override
 TK_CTRL_PTAUH = "PTAUH"      # PlayTime allowed during unaccounted intervals
 TK_CTRL_PTLMT = "PTLMT"      # time limits for each day for PlayTime
@@ -260,6 +262,8 @@ TK_PLAYTIME_ENABLED = False
 TK_PLAYTIME_ALLOWED_WEEKDAYS = "1;2;3;4;5;6;7"
 # how much PlayTime is allowed per allowed days
 TK_PLAYTIME_LIMITS_PER_WEEKDAYS = "0;0;0;0;0;0;0"
+# default value for limit per week for PlayTime
+TK_PLAYTIME_LIMIT_PER_WEEK = 0
 
 # ## default values for control ##
 # time control

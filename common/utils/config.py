@@ -1318,6 +1318,9 @@ class timekprUserControl(object):
             # read
             param = "PLAYTIME_SPENT_DAY"
             resultValue, self._timekprUserControl[param] = _readAndNormalizeValue(self._timekprUserControlParser.getint, section, param, pDefaultValue=0, pCheckValue=cons.TK_LIMIT_PER_DAY, pOverallSuccess=resultValue)
+            # read
+            param = "PLAYTIME_SPENT_WEEK"
+            resultValue, self._timekprUserControl[param] = _readAndNormalizeValue(self._timekprUserControlParser.getint, section, param, pDefaultValue=0, pCheckValue=cons.TK_LIMIT_PER_WEEK, pOverallSuccess=resultValue)
 
             # if we could not read some values, save what we could + defaults
             if not resultValue:
@@ -1375,6 +1378,9 @@ class timekprUserControl(object):
         param = "PLAYTIME_SPENT_DAY"
         self._timekprUserControlParser.set(section, "# total PlayTime spent for this day")
         self._timekprUserControlParser.set(section, "%s" % (param), str(self._timekprUserControl[param]) if pReuseValues else "0")
+        param = "PLAYTIME_SPENT_WEEK"
+        self._timekprUserControlParser.set(section, "# total PlayTime spent for this week")
+        self._timekprUserControlParser.set(section, "%s" % (param), str(self._timekprUserControl[param]) if pReuseValues else "0")
 
         # save the file
         with open(self._configFile, "w") as fp:
@@ -1413,6 +1419,9 @@ class timekprUserControl(object):
         # PlayTime spent day
         param = "PLAYTIME_SPENT_DAY"
         values[param] = str(int(self._timekprUserControl[param]))
+        # PlayTime spent week
+        param = "PLAYTIME_SPENT_WEEK"
+        values[param] = str(int(self._timekprUserControl[param]))
 
         # edit control file (using alternate method because configparser looses comments in the process)
         _saveConfigFile(self._configFile, values)
@@ -1446,6 +1455,9 @@ class timekprUserControl(object):
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
             # log
             param = "PLAYTIME_SPENT_DAY"
+            log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
+            # log
+            param = "PLAYTIME_SPENT_WEEK"
             log.log(cons.TK_LOG_LEVEL_INFO, "  %s=%s" % (param, str(self._timekprUserControl[param])))
         # fail
         except Exception:
@@ -1542,6 +1554,16 @@ class timekprUserControl(object):
         """Set PlayTime spent for day (including bonues)"""
         # result
         self._timekprUserControl["PLAYTIME_SPENT_DAY"] = pTimeSpent
+
+    def getUserPlayTimeSpentWeek(self):
+        """Get PlayTime spent for week"""
+        # result
+        return self._timekprUserControl["PLAYTIME_SPENT_WEEK"]
+
+    def setUserPlayTimeSpentWeek(self, pTimeSpent):
+        """Set PlayTime spent for week"""
+        # result
+        self._timekprUserControl["PLAYTIME_SPENT_WEEK"] = pTimeSpent
 
 class timekprClientConfig(object):
     """Class will hold and provide config management for user"""
