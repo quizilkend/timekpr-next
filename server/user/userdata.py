@@ -634,6 +634,7 @@ class timekprUser(object):
         timeValues[cons.TK_CTRL_HIDEI] = self._timekprUserConfig.getUserHideTrayIcon()
         timeValues[cons.TK_CTRL_LIMITD] = self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD]
         timeValues[cons.TK_CTRL_LIMITW] = self._timekprUserData[cons.TK_CTRL_LIMITW]
+        timeValues[cons.TK_CTRL_LEFTW] = self._timekprUserData[cons.TK_CTRL_LEFTW]
         #timeValues[cons.TK_CTRL_TNL] = (1 if self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD] >= cons.TK_LIMIT_PER_DAY and timeAvailableIntervals >= cons.TK_LIMIT_PER_DAY else 0)
         # Change from https://answers.launchpad.net/timekpr-next/+question/821724
         timeValues[cons.TK_CTRL_TNL] = (1 if self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD] >= cons.TK_LIMIT_PER_DAY and timeAvailableIntervals >= cons.TK_LIMIT_PER_DAY and timeLeftToday >= (self._secondsLeftDay - self._timekprConfig.getTimekprPollTime()) else 0)

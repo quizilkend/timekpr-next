@@ -111,6 +111,7 @@ class timekprNotificationManager(dbus.service.Object):
         timeLeft[cons.TK_CTRL_TNL] = pTimeValues[cons.TK_CTRL_TNL]
         timeLeft[cons.TK_CTRL_LIMITD] = int(pTimeValues[cons.TK_CTRL_LIMITD])
         timeLeft[cons.TK_CTRL_LIMITW] = int(pTimeValues[cons.TK_CTRL_LIMITW])
+        timeLeft[cons.TK_CTRL_LEFTW] = int(pTimeValues[cons.TK_CTRL_LEFTW])
         # include PlayTime (if enabled, check is done for couple of mandatory values)
         if cons.TK_CTRL_PTTLO in pTimeValues and cons.TK_CTRL_PTSPD in pTimeValues:
             timeLeft[cons.TK_CTRL_PTTLO] = (1 if pTimeValues[cons.TK_CTRL_PTTLO] else 0)

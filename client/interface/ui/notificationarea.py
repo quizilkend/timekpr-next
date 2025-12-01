@@ -192,24 +192,24 @@ class timekprNotificationArea(object):
         # check if time is unlimited today
         isUnlimited = pTimeInfo.get(cons.TK_CTRL_TNL, 0) > 0
 
-        # get screentime values (time spent today and daily limit)
-        timeSpentToday = pTimeInfo.get(cons.TK_CTRL_SPENT, 0)
+        # get screentime values (time left today and daily limit)
+        timeLeftToday = pTimeInfo.get(cons.TK_CTRL_LEFTD, 0)
         dailyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITD, 0)
-        # get weekly screentime values
-        timeSpentWeek = pTimeInfo.get(cons.TK_CTRL_SPENTW, 0)
+        # get weekly screentime values (time left this week and weekly limit)
+        timeLeftWeek = pTimeInfo.get(cons.TK_CTRL_LEFTW, 0)
         weeklyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITW, 0)
 
-        # format screentime today: spent / limit (show ∞ if unlimited)
+        # format screentime today: left / limit (show ∞ if unlimited)
         screentimeTodayStr = "%s: %s / %s" % (
             msg.getTranslation("TK_MSG_TOOLTIP_SCREENTIME_TODAY"),
-            self._formatSecondsAsTime(timeSpentToday),
+            "∞" if isUnlimited else self._formatSecondsAsTime(timeLeftToday),
             "∞" if isUnlimited else self._formatSecondsAsTime(dailyLimit)
         )
 
-        # format screentime week: spent / limit
+        # format screentime week: left / limit
         screentimeWeekStr = "%s: %s / %s" % (
             msg.getTranslation("TK_MSG_TOOLTIP_SCREENTIME_WEEK"),
-            self._formatSecondsAsTime(timeSpentWeek),
+            self._formatSecondsAsTime(timeLeftWeek),
             self._formatSecondsAsTime(weeklyLimit)
         )
 
@@ -217,19 +217,20 @@ class timekprNotificationArea(object):
         tooltipLines = [screentimeTodayStr]
 
         # check if PlayTime is enabled (check for mandatory PT values)
-        hasPlayTime = cons.TK_CTRL_PTSPD in pTimeInfo and cons.TK_CTRL_PTLMD in pTimeInfo
+        hasPlayTime = cons.TK_CTRL_PTLPD in pTimeInfo and cons.TK_CTRL_PTLMD in pTimeInfo
 
         if hasPlayTime:
-            # get playtime values
-            playTimeSpentToday = pTimeInfo.get(cons.TK_CTRL_PTSPD, 0)
+            # get playtime values (time left today and limit)
+            playTimeLeftToday = pTimeInfo.get(cons.TK_CTRL_PTLPD, 0)
             playTimeLimitToday = pTimeInfo.get(cons.TK_CTRL_PTLMD, 0)
-            playTimeSpentWeek = pTimeInfo.get(cons.TK_CTRL_PTSPW, 0)
+            # get playtime weekly values (time left this week and limit)
+            playTimeLeftWeek = pTimeInfo.get(cons.TK_CTRL_PTLPW, 0)
             playTimeLimitWeek = pTimeInfo.get(cons.TK_CTRL_PTLMW, 0)
 
-            # format playtime today: spent / limit
+            # format playtime today: left / limit
             playtimeTodayStr = "%s: %s / %s" % (
                 msg.getTranslation("TK_MSG_TOOLTIP_PLAYTIME_TODAY"),
-                self._formatSecondsAsTime(playTimeSpentToday),
+                self._formatSecondsAsTime(playTimeLeftToday),
                 self._formatSecondsAsTime(playTimeLimitToday)
             )
             tooltipLines.append(playtimeTodayStr)
@@ -238,10 +239,10 @@ class timekprNotificationArea(object):
         tooltipLines.append(screentimeWeekStr)
 
         if hasPlayTime:
-            # format playtime week: spent / limit
+            # format playtime week: left / limit
             playtimeWeekStr = "%s: %s / %s" % (
                 msg.getTranslation("TK_MSG_TOOLTIP_PLAYTIME_WEEK"),
-                self._formatSecondsAsTime(playTimeSpentWeek),
+                self._formatSecondsAsTime(playTimeLeftWeek),
                 self._formatSecondsAsTime(playTimeLimitWeek)
             )
             tooltipLines.append(playtimeWeekStr)
