@@ -122,7 +122,7 @@ class timekprNotificationArea(object):
             # if there is no time left set yet, show --
             if pTimeLeft is None:
                 # determine hours and minutes
-                timeLeftStr = "--:--" + (":--" if self._timekprClientConfig.getClientShowSeconds() else "")
+                timeLeftStr = self._formatSecondsAsTime(None)
             else:
                 # update time
                 self._timeLeftTotal = pTimeLeft
@@ -187,7 +187,7 @@ class timekprNotificationArea(object):
         """Build tooltip string with multiple lines for screentime and playtime"""
         # if no time info, return placeholder
         if pTimeInfo is None:
-            return "--:--" + (":--" if self._timekprClientConfig.getClientShowSeconds() else "")
+            return self._formatSecondsAsTime(None)
 
         # check if time is unlimited today
         isUnlimited = pTimeInfo.get(cons.TK_CTRL_TNL, 0) > 0
