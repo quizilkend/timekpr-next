@@ -217,7 +217,7 @@ class timekprNotificationArea(object):
         tooltipLines = [screentimeTodayStr]
 
         # check if PlayTime is enabled (check for mandatory PT values)
-        hasPlayTime = cons.TK_CTRL_PTLPD in pTimeInfo and cons.TK_CTRL_PTLMD in pTimeInfo
+        hasPlayTime = cons.TK_CTRL_PTLPD in pTimeInfo and cons.TK_CTRL_PTTLO in pTimeInfo
 
         if hasPlayTime:
             # get playtime values (time left today and limit)
