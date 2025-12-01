@@ -109,12 +109,17 @@ class timekprNotificationManager(dbus.service.Object):
         timeLeft[cons.TK_CTRL_TRACK] = (1 if pTimeValues[cons.TK_CTRL_TRACK] else 0)
         timeLeft[cons.TK_CTRL_HIDEI] = (1 if pTimeValues[cons.TK_CTRL_HIDEI] else 0)
         timeLeft[cons.TK_CTRL_TNL] = pTimeValues[cons.TK_CTRL_TNL]
+        timeLeft[cons.TK_CTRL_LIMITD] = int(pTimeValues[cons.TK_CTRL_LIMITD])
+        timeLeft[cons.TK_CTRL_LIMITW] = int(pTimeValues[cons.TK_CTRL_LIMITW])
         # include PlayTime (if enabled, check is done for couple of mandatory values)
         if cons.TK_CTRL_PTTLO in pTimeValues and cons.TK_CTRL_PTSPD in pTimeValues:
             timeLeft[cons.TK_CTRL_PTTLO] = (1 if pTimeValues[cons.TK_CTRL_PTTLO] else 0)
             timeLeft[cons.TK_CTRL_PTAUH] = (1 if pTimeValues[cons.TK_CTRL_PTAUH] else 0)
             timeLeft[cons.TK_CTRL_PTSPD] = int(pTimeValues[cons.TK_CTRL_PTSPD])
             timeLeft[cons.TK_CTRL_PTLPD] = int(pTimeValues[cons.TK_CTRL_PTLPD])
+            timeLeft[cons.TK_CTRL_PTSPW] = int(pTimeValues[cons.TK_CTRL_PTSPW])
+            timeLeft[cons.TK_CTRL_PTLMD] = int(pTimeValues[cons.TK_CTRL_PTLMD])
+            timeLeft[cons.TK_CTRL_PTLMW] = int(pTimeValues[cons.TK_CTRL_PTLMW])
             timeLeft[cons.TK_CTRL_PTLSTC] = int(pTimeValues[cons.TK_CTRL_PTLSTC])
 
         # save calculated urgency (calculated may get overridden by uacc)

@@ -240,6 +240,12 @@ def initMessages():
     _messages["TK_MSG_NOTIF_CONFIG_IMPORTANCE_LABEL"] = {"s": _("Importance")}
     _messages["TK_MSG_NOTIF_CONFIG_IMPORTANCE_PHLD_LABEL"] = {"s": _("importance...")}
 
+    # ## this defines messages for tooltip ##
+    _messages["TK_MSG_TOOLTIP_SCREENTIME_TODAY"] = {"s": _("Screentime today")}
+    _messages["TK_MSG_TOOLTIP_PLAYTIME_TODAY"] = {"s": _("Playtime today")}
+    _messages["TK_MSG_TOOLTIP_SCREENTIME_WEEK"] = {"s": _("Screentime week")}
+    _messages["TK_MSG_TOOLTIP_PLAYTIME_WEEK"] = {"s": _("Playtime week")}
+
     # ## this defines messages for use in notifications ##
     _messages["TK_MSG_NOTIFICATION_TITLE"] = {"s": _("Timekpr-nExT notification")}
     _messages["TK_MSG_NOTIFICATION_PLAYTIME_TITLE"] = {"s": _("Timekpr-nExT PlayTime notification")}

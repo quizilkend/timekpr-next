@@ -10,6 +10,7 @@ import os
 
 # timekpr imports
 from timekpr.common.constants import constants as cons
+from timekpr.common.constants import messages as msg
 from timekpr.common.log import log
 from timekpr.client.interface.dbus.notifications import timekprNotifications
 from timekpr.client.gui.clientgui import timekprGUI
@@ -96,7 +97,7 @@ class timekprNotificationArea(object):
         # final priority
         return finalPrio, finalLimitSecs
 
-    def formatTimeLeft(self, pPriority, pTimeLeft, pTimeNotLimited, pPlayTimeLeft=None):
+    def formatTimeLeft(self, pPriority, pTimeLeft, pTimeNotLimited, pPlayTimeLeft=None, pTimeInfo=None):
         """Set time left in the indicator"""
         log.log(cons.TK_LOG_LEVEL_DEBUG, "start formatTimeLeft")
 
@@ -131,33 +132,25 @@ class timekprNotificationArea(object):
                 # unlimited has special icon and text (if it's not anymore, these will change)
                 if self._timeNotLimited > 0:
                     # unlimited!
-                    timeLeftStr = "∞"
                     prio = "unlimited"
-                else:
-                    # determine hours and minutes
-                    timeLeftStr = str((self._timeLeftTotal - cons.TK_DATETIME_START).days * 24 + self._timeLeftTotal.hour).rjust(2, "0")
-                    timeLeftStr += ":" + str(self._timeLeftTotal.minute).rjust(2, "0")
-                    timeLeftStr += ((":" + str(self._timeLeftTotal.second).rjust(2, "0")) if self._timekprClientConfig.getClientShowSeconds() else "")
 
-                    # notifications and icons only when time has changed
-                    if isTimeChanged:
-                        # get user configured level and priority
-                        prio, finLvl = (pPriority, -1) if pPriority == cons.TK_PRIO_UACC else self._determinePriority("Time", pPriority, (pTimeLeft - cons.TK_DATETIME_START).total_seconds())
+                # build tooltip with multiple lines using time information
+                timeLeftStr = self._buildTooltipString(pTimeInfo)
 
-                        # if level actually changed
-                        if self._lastUsedPriorityLvl != finLvl:
-                            # do not notify if this is the first invocation, because initial limits are already asked from server
-                            # do not notify user in case icon is hidden and no notifications should be shown
-                            if self._lastUsedPriorityLvl > 0 and self.getTrayIconEnabled():
-                                # emit notification
-                                self.notifyUser(cons.TK_MSG_CODE_TIMELEFT, None, prio, pTimeLeft, None)
-                            # level this up
-                            self._lastUsedPriorityLvl = finLvl
+                # notifications and icons only when time has changed
+                if isTimeChanged and self._timeNotLimited <= 0:
+                    # get user configured level and priority
+                    prio, finLvl = (pPriority, -1) if pPriority == cons.TK_PRIO_UACC else self._determinePriority("Time", pPriority, (pTimeLeft - cons.TK_DATETIME_START).total_seconds())
 
-                # determine hours and minutes for PlayTime (if there is such time)
-                if pPlayTimeLeft is not None:
-                    # format final time string
-                    timeLeftStr = "%s / %s" % (timeLeftStr, timeLeftStrPT)
+                    # if level actually changed
+                    if self._lastUsedPriorityLvl != finLvl:
+                        # do not notify if this is the first invocation, because initial limits are already asked from server
+                        # do not notify user in case icon is hidden and no notifications should be shown
+                        if self._lastUsedPriorityLvl > 0 and self.getTrayIconEnabled():
+                            # emit notification
+                            self.notifyUser(cons.TK_MSG_CODE_TIMELEFT, None, prio, pTimeLeft, None)
+                        # level this up
+                        self._lastUsedPriorityLvl = finLvl
 
                 # now, if priority changes, set up icon as well
                 if isTimeChanged and self._lastUsedPriority != prio:
@@ -175,6 +168,83 @@ class timekprNotificationArea(object):
 
         # return time left and icon (if changed), so implementations can use it
         return timeLeftStr, timekprIcon
+
+    def _formatSecondsAsTime(self, pSeconds):
+        """Format seconds as HH:MM or HH:MM:SS based on client config"""
+        if pSeconds is None:
+            return "--:--" + (":--" if self._timekprClientConfig.getClientShowSeconds() else "")
+        # calculate hours, minutes and seconds
+        hours = pSeconds // 3600
+        minutes = (pSeconds % 3600) // 60
+        seconds = pSeconds % 60
+        # format time string
+        timeStr = str(hours).rjust(2, "0") + ":" + str(minutes).rjust(2, "0")
+        if self._timekprClientConfig.getClientShowSeconds():
+            timeStr += ":" + str(seconds).rjust(2, "0")
+        return timeStr
+
+    def _buildTooltipString(self, pTimeInfo):
+        """Build tooltip string with multiple lines for screentime and playtime"""
+        # if no time info, return placeholder
+        if pTimeInfo is None:
+            return "--:--" + (":--" if self._timekprClientConfig.getClientShowSeconds() else "")
+
+        # get screentime values (time spent today and daily limit)
+        timeSpentToday = pTimeInfo.get(cons.TK_CTRL_SPENT, 0)
+        dailyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITD, 0)
+        # get weekly screentime values
+        timeSpentWeek = pTimeInfo.get(cons.TK_CTRL_SPENTW, 0)
+        weeklyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITW, 0)
+
+        # format screentime today: spent / limit
+        screentimeTodayStr = "%s: %s / %s" % (
+            msg.getTranslation("TK_MSG_TOOLTIP_SCREENTIME_TODAY"),
+            self._formatSecondsAsTime(timeSpentToday),
+            self._formatSecondsAsTime(dailyLimit)
+        )
+
+        # format screentime week: spent / limit
+        screentimeWeekStr = "%s: %s / %s" % (
+            msg.getTranslation("TK_MSG_TOOLTIP_SCREENTIME_WEEK"),
+            self._formatSecondsAsTime(timeSpentWeek),
+            self._formatSecondsAsTime(weeklyLimit)
+        )
+
+        # build tooltip lines
+        tooltipLines = [screentimeTodayStr]
+
+        # check if PlayTime is enabled (check for mandatory PT values)
+        hasPlayTime = cons.TK_CTRL_PTSPD in pTimeInfo and cons.TK_CTRL_PTLMD in pTimeInfo
+
+        if hasPlayTime:
+            # get playtime values
+            playTimeSpentToday = pTimeInfo.get(cons.TK_CTRL_PTSPD, 0)
+            playTimeLimitToday = pTimeInfo.get(cons.TK_CTRL_PTLMD, 0)
+            playTimeSpentWeek = pTimeInfo.get(cons.TK_CTRL_PTSPW, 0)
+            playTimeLimitWeek = pTimeInfo.get(cons.TK_CTRL_PTLMW, 0)
+
+            # format playtime today: spent / limit
+            playtimeTodayStr = "%s: %s / %s" % (
+                msg.getTranslation("TK_MSG_TOOLTIP_PLAYTIME_TODAY"),
+                self._formatSecondsAsTime(playTimeSpentToday),
+                self._formatSecondsAsTime(playTimeLimitToday)
+            )
+            tooltipLines.append(playtimeTodayStr)
+
+        # add screentime week
+        tooltipLines.append(screentimeWeekStr)
+
+        if hasPlayTime:
+            # format playtime week: spent / limit
+            playtimeWeekStr = "%s: %s / %s" % (
+                msg.getTranslation("TK_MSG_TOOLTIP_PLAYTIME_WEEK"),
+                self._formatSecondsAsTime(playTimeSpentWeek),
+                self._formatSecondsAsTime(playTimeLimitWeek)
+            )
+            tooltipLines.append(playtimeWeekStr)
+
+        # join lines with newline
+        return "\n".join(tooltipLines)
 
     def processPlayTimeNotifications(self, pTimeLimits):
         """Process PlayTime notifications (if there is PT info in limits)"""

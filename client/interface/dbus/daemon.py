@@ -238,8 +238,8 @@ class timekprClient(object):
         log.log(cons.TK_LOG_LEVEL_DEBUG, "receive timeleft, prio: %s, tl: %i, ptl: %s, nolim: %i" % (pPriority, timeLeft, str(playTimeLeft), isTimeNotLimited))
         # process show / hide icon
         self.processShowClientIcon(pTimeInformation)
-        # process time left
-        self._timekprClientIndicator.setTimeLeft(pPriority, cons.TK_DATETIME_START + timedelta(seconds=timeLeft), isTimeNotLimited, cons.TK_DATETIME_START + timedelta(seconds=playTimeLeft) if playTimeLeft is not None else playTimeLeft)
+        # process time left (pass full time information for tooltip)
+        self._timekprClientIndicator.setTimeLeft(pPriority, cons.TK_DATETIME_START + timedelta(seconds=timeLeft), isTimeNotLimited, cons.TK_DATETIME_START + timedelta(seconds=playTimeLeft) if playTimeLeft is not None else playTimeLeft, pTimeInformation)
         # renew limits in GUI
         self._timekprClientIndicator.renewUserLimits(pTimeInformation)
         # process PlayTime notifications as well
