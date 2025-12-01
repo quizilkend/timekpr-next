@@ -633,6 +633,8 @@ class timekprUser(object):
         timeValues[cons.TK_CTRL_TRACK] = self._timekprUserConfig.getUserTrackInactive()
         timeValues[cons.TK_CTRL_HIDEI] = self._timekprUserConfig.getUserHideTrayIcon()
         timeValues[cons.TK_CTRL_LIMITD] = self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD]
+        timeValues[cons.TK_CTRL_LIMITW] = self._timekprUserData[cons.TK_CTRL_LIMITW]
+        timeValues[cons.TK_CTRL_LEFTW] = self._timekprUserData[cons.TK_CTRL_LEFTW]
         #timeValues[cons.TK_CTRL_TNL] = (1 if self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD] >= cons.TK_LIMIT_PER_DAY and timeAvailableIntervals >= cons.TK_LIMIT_PER_DAY else 0)
         # Change from https://answers.launchpad.net/timekpr-next/+question/821724
         timeValues[cons.TK_CTRL_TNL] = (1 if self._timekprUserData[self._currentDOW][cons.TK_CTRL_LIMITD] >= cons.TK_LIMIT_PER_DAY and timeAvailableIntervals >= cons.TK_LIMIT_PER_DAY and timeLeftToday >= (self._secondsLeftDay - self._timekprConfig.getTimekprPollTime()) else 0)
@@ -645,6 +647,8 @@ class timekprUser(object):
             timeValues[cons.TK_CTRL_PTLPD] = max(0, self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_LEFTD])
             timeValues[cons.TK_CTRL_PTSPW] = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_SPENTW]
             timeValues[cons.TK_CTRL_PTLPW] = max(0, self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LEFTW])
+            timeValues[cons.TK_CTRL_PTLMD] = self._timekprUserData[cons.TK_CTRL_PTCNT][self._currentDOW][cons.TK_CTRL_LIMITD]
+            timeValues[cons.TK_CTRL_PTLMW] = self._timekprUserData[cons.TK_CTRL_PTCNT][cons.TK_CTRL_LIMITW]
             timeValues[cons.TK_CTRL_PTLSTC] = self.getPlayTimeActiveActivityCnt()
 
         # pass uacc too, so notifications can be prevented when hour is unaccounted
