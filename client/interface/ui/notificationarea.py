@@ -189,6 +189,9 @@ class timekprNotificationArea(object):
         if pTimeInfo is None:
             return "--:--" + (":--" if self._timekprClientConfig.getClientShowSeconds() else "")
 
+        # check if time is unlimited today
+        isUnlimited = pTimeInfo.get(cons.TK_CTRL_TNL, 0) > 0
+
         # get screentime values (time spent today and daily limit)
         timeSpentToday = pTimeInfo.get(cons.TK_CTRL_SPENT, 0)
         dailyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITD, 0)
@@ -196,11 +199,11 @@ class timekprNotificationArea(object):
         timeSpentWeek = pTimeInfo.get(cons.TK_CTRL_SPENTW, 0)
         weeklyLimit = pTimeInfo.get(cons.TK_CTRL_LIMITW, 0)
 
-        # format screentime today: spent / limit
+        # format screentime today: spent / limit (show ∞ if unlimited)
         screentimeTodayStr = "%s: %s / %s" % (
             msg.getTranslation("TK_MSG_TOOLTIP_SCREENTIME_TODAY"),
             self._formatSecondsAsTime(timeSpentToday),
-            self._formatSecondsAsTime(dailyLimit)
+            "∞" if isUnlimited else self._formatSecondsAsTime(dailyLimit)
         )
 
         # format screentime week: spent / limit

@@ -118,6 +118,7 @@ class timekprNotificationManager(dbus.service.Object):
             timeLeft[cons.TK_CTRL_PTSPD] = int(pTimeValues[cons.TK_CTRL_PTSPD])
             timeLeft[cons.TK_CTRL_PTLPD] = int(pTimeValues[cons.TK_CTRL_PTLPD])
             timeLeft[cons.TK_CTRL_PTSPW] = int(pTimeValues[cons.TK_CTRL_PTSPW])
+            timeLeft[cons.TK_CTRL_PTLPW] = int(pTimeValues[cons.TK_CTRL_PTLPW])
             timeLeft[cons.TK_CTRL_PTLMD] = int(pTimeValues[cons.TK_CTRL_PTLMD])
             timeLeft[cons.TK_CTRL_PTLMW] = int(pTimeValues[cons.TK_CTRL_PTLMW])
             timeLeft[cons.TK_CTRL_PTLSTC] = int(pTimeValues[cons.TK_CTRL_PTLSTC])
